@@ -43,8 +43,7 @@
       Section              = this.ast.Section,
       Resource             = this.ast.Resource,
       Request              = this.ast.Request,
-      Response             = this.ast.Response,
-      JsonSchemaValidation = this.ast.JsonSchemaValidation;
+      Response             = this.ast.Response;
 
   var urlPrefix = "", bodyTerminator;
 }
@@ -63,8 +62,6 @@ API
     EmptyLine*
     sections:Sections
     EmptyLine*
-    validations:JsonSchemaValidations?
-    EmptyLine*
     {
       /* Wrap free-standing resources into an anonymnous section. */
       if (resources.length > 0) {
@@ -79,8 +76,7 @@ API
         location:    nullIfEmpty(location),
         name:        nullIfEmpty(name),
         description: nullIfEmpty(description),
-        sections:    sections,
-        validations: validations !== "" ? validations : []
+        sections:    sections
       });
     }
 
@@ -130,7 +126,7 @@ SectionHeader
   / SectionHeaderShort
 
 SectionHeaderShort
-  = !JsonSchemaValidations "--" S+ name:Text1 EOLF {
+  = "--" S+ name:Text1 EOLF {
       return {
         name:        name.replace(/\s+--$/, ""),
         description: ""
@@ -138,7 +134,7 @@ SectionHeaderShort
     }
 
 SectionHeaderLong
-  = !JsonSchemaValidations "--" S* EOL lines:SectionHeaderLongLine* "--" S* EOLF {
+  = "--" S* EOL lines:SectionHeaderLongLine* "--" S* EOLF {
     return {
       name:        lines.length > 0 ? lines[0] : "",
       description: lines.slice(1).join("\n")
@@ -157,11 +153,10 @@ Resources
 
 Resource
   /*
-   * Initial !Section and !JsonSchemaValidations are needed so that parsing of
-   * sectionless resources (which are placed before resources in sections and
-   * validations) terminates correctly.
+   * Initial !Section needed so that parsing of sectionless resources (which
+   * are placed before resources in sections) terminates correctly.
    */
-  = !Section !JsonSchemaValidations
+  = !Section
     description:ResourceDescription?
     signature:Signature
     request:Request
@@ -265,24 +260,6 @@ HttpHeaderName "HTTP header name"
 
 HttpHeaderValue "HTTP header value"
   = Text0
-
-JsonSchemaValidations
-  = "-- JSON Schema Validations --"
-    EOLF
-    head:JsonSchemaValidation?
-    tail:(EmptyLine* validation:JsonSchemaValidation { return validation; })*
-    {
-      return combineHeadTail(head, tail);
-    }
-
-JsonSchemaValidation
-  = signature:Signature body:Body {
-      return new JsonSchemaValidation({
-        method: signature.method,
-        url:    signature.url,
-        body:   body
-      });
-    }
 
 Signature
   = method:HttpMethod S+ url:Text1 EOL {

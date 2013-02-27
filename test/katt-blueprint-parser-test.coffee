@@ -1,9 +1,6 @@
-if require?
-  parser = require "../lib/apiary-blueprint-parser"
-  chai   = require "chai"
-else
-  parser = window.ApiaryBlueprintParser
-  chai   = window.chai
+parser = require "../lib/katt-blueprint-parser"
+chai   = require "chai"
+
 
 chai.use (chai, util) ->
   chai.assert.parse = (input, result) ->
@@ -41,7 +38,6 @@ Section              = parser.ast.Section
 Resource             = parser.ast.Resource
 Request              = parser.ast.Request
 Response             = parser.ast.Response
-JsonSchemaValidation = parser.ast.JsonSchemaValidation
 
 sectionBlueprint = (props = {}) ->
   new Blueprint
@@ -57,7 +53,7 @@ requestBlueprint = (props = {}) ->
 responseBlueprint = (props = {}) ->
   resourceBlueprint responses: [new Response(props)]
 
-describe "Apiary blueprint parser", ->
+describe "KATT API blueprint parser", ->
   # ===== Rule Tests =====
 
   # There is no canonical API.
@@ -98,7 +94,6 @@ describe "Apiary blueprint parser", ->
       -- Section 1 --
       -- Section 2 --
       -- Section 3 --
-      -- JSON Schema Validations --
     """, blueprint
 
     assert.parse """
@@ -123,9 +118,6 @@ describe "Apiary blueprint parser", ->
       -- Section 1 --
       -- Section 2 --
       -- Section 3 --
-
-      -- JSON Schema Validations --
-
     """, blueprint
 
     assert.parse """
@@ -160,12 +152,6 @@ describe "Apiary blueprint parser", ->
       -- Section 1 --
       -- Section 2 --
       -- Section 3 --
-
-
-
-      -- JSON Schema Validations --
-
-
 
     """, blueprint
 
@@ -213,14 +199,14 @@ describe "Apiary blueprint parser", ->
     assert.parse """
       --- API ---
 
-      --- 
+      ---
       ---
     """, new Blueprint name: "API", description: null
 
     assert.parse """
       --- API ---
 
-      ---  
+      ---
       ---
     """, new Blueprint name: "API", description: null
 
@@ -246,14 +232,14 @@ describe "Apiary blueprint parser", ->
       --- API ---
 
       ---
-      --- 
+      ---
     """, new Blueprint name: "API", description: null
 
     assert.parse """
       --- API ---
 
       ---
-      ---   
+      ---
     """, new Blueprint name: "API", description: null
 
   # Canonical APIDescriptionLine is "abcd".
@@ -453,14 +439,14 @@ describe "Apiary blueprint parser", ->
     assert.parse """
       --- API ---
 
-      -- 
+      --
       --
     """, sectionBlueprint name: null, description: null
 
     assert.parse """
       --- API ---
 
-      --   
+      --
       --
     """, sectionBlueprint name: null, description: null
 
@@ -486,14 +472,14 @@ describe "Apiary blueprint parser", ->
       --- API ---
 
       --
-      -- 
+      --
     """, sectionBlueprint name: null, description: null
 
     assert.parse """
       --- API ---
 
       --
-      --   
+      --
     """, sectionBlueprint name: null, description: null
 
   # Canonical SectionHeaderLongLine is "abcd".
@@ -1053,14 +1039,14 @@ describe "Apiary blueprint parser", ->
       --- API ---
 
       GET /
-      < 200 
+      < 200
     """,   resourceBlueprint()
 
     assert.parse """
       --- API ---
 
       GET /
-      < 200   
+      < 200
     """, resourceBlueprint()
 
   # Canonical ResponseHeaders is " Content-Type: application/json".
@@ -1122,7 +1108,7 @@ describe "Apiary blueprint parser", ->
 
       GET /
       < 200
-      +++++ 
+      +++++
       < 200
     """, blueprint
 
@@ -1131,7 +1117,7 @@ describe "Apiary blueprint parser", ->
 
       GET /
       < 200
-      +++++   
+      +++++
       < 200
     """, blueprint
 
@@ -1238,104 +1224,6 @@ describe "Apiary blueprint parser", ->
       < Content-Type: abcd
     """, responseBlueprint headers: { "Content-Type": "abcd" }
 
-  # Canonical JsonSchemaValidations is "-- JSON Schema Validations --"
-  it "parses JSONSchemaValidations", ->
-    blueprint0 = new Blueprint
-      name: "API"
-
-    blueprint1 = new Blueprint
-      name:        "API"
-      validations: [
-        new JsonSchemaValidation url: "/one", body: "{ \"type\": \"object\" }"
-      ]
-
-    blueprint3 = new Blueprint
-      name:        "API"
-      validations: [
-        new JsonSchemaValidation url: "/one",   body: "{ \"type\": \"object\" }"
-        new JsonSchemaValidation url: "/two",   body: "{ \"type\": \"object\" }"
-        new JsonSchemaValidation url: "/three", body: "{ \"type\": \"object\" }"
-      ]
-
-    assert.parse """
-      --- API ---
-
-      -- JSON Schema Validations --
-
-    """, blueprint0
-
-    assert.parse """
-      --- API ---
-
-      -- JSON Schema Validations --
-      GET /one
-      { "type": "object" }
-    """, blueprint1
-
-    assert.parse """
-      --- API ---
-
-      -- JSON Schema Validations --
-      GET /one
-      { "type": "object" }
-
-      GET /two
-      { "type": "object" }
-
-      GET /three
-      { "type": "object" }
-    """, blueprint3
-
-    assert.parse """
-      --- API ---
-
-      -- JSON Schema Validations --
-      GET /one
-      { "type": "object" }
-
-
-
-      GET /two
-      { "type": "object" }
-
-
-
-      GET /three
-      { "type": "object" }
-    """, blueprint3
-
-  # Canonical JsonSchemaValidation is:
-  #
-  #   GET /
-  #   { "type": "object" }
-  #
-  it "parses JSONSchemaValidation", ->
-    assert.parse """
-      --- API ---
-
-      -- JSON Schema Validations --
-      GET /
-      { "type": "object" }
-    """, new Blueprint
-      name:        "API"
-      validations: [new JsonSchemaValidation body: "{ \"type\": \"object\" }"]
-
-  # Canonical Signature is "GET /".
-  it "parses Signature", ->
-    assert.parse """
-      --- API ---
-
-      GET abcd
-      < 200
-    """, resourceBlueprint url: "abcd"
-
-    assert.parse """
-      --- API ---
-
-      GET   abcd
-      < 200
-    """, resourceBlueprint url: "abcd"
-
   # Canonical Body is "{ \"status\": \"ok\" }".
   it "parses Body", ->
     blueprint = responseBlueprint body: "{ \"status\": \"ok\" }"
@@ -1389,7 +1277,7 @@ describe "Apiary blueprint parser", ->
 
       GET /
       < 200
-      <<< 
+      <<<
       >>>
     """, responseBlueprint body: null
 
@@ -1398,7 +1286,7 @@ describe "Apiary blueprint parser", ->
 
       GET /
       < 200
-      <<<   
+      <<<
       >>>
     """, responseBlueprint body: null
 
@@ -1430,7 +1318,7 @@ describe "Apiary blueprint parser", ->
       GET /
       < 200
       <<<
-      >>> 
+      >>>
     """, responseBlueprint body: null
 
     assert.parse """
@@ -1439,7 +1327,7 @@ describe "Apiary blueprint parser", ->
       GET /
       < 200
       <<<
-      >>>   
+      >>>
     """, responseBlueprint body: null
 
   # Canonical DelimitedBodyFixedLine is "abcd".
@@ -1774,4 +1662,3 @@ describe "Apiary blueprint parser", ->
              }
           ]
       ]
-      validations: []

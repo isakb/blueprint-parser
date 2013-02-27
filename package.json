@@ -1,8 +1,8 @@
 {
-  "name":            "apiary-blueprint-parser",
+  "name":            "katt-blueprint-parser",
   "version":         "0.4.1",
-  "description":     "Apiary blueprint parser",
-  "homepage":        "https://github.com/apiaryio/blueprint-parser",
+  "description":     "KATT blueprint parser (derived from Apiary blueprint parser)",
+  "homepage":        "https://github.com/isakb/blueprint-parser",
   "author":          {
     "name":  "Apiary Ltd.",
     "email": "team@apiary.io",
@@ -14,10 +14,10 @@
     "README.md",
     "VERSION",
     "examples/example.apib",
-    "lib/apiary-blueprint-parser.js",
+    "lib/katt-blueprint-parser.js",
     "lib/ast.js"
   ],
-  "main":            "lib/apiary-blueprint-parser",
+  "main":            "lib/katt-blueprint-parser",
   "devDependencies": {
     "coffee-script": "= 1.4.0",
     "pegjs":         "git://github.com/dmajda/pegjs.git#02af83f9b416778878e52e2cbbc22d96e312164e",

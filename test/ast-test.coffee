@@ -1,16 +1,12 @@
-if require?
-  parser     = require "../lib/apiary-blueprint-parser"
-  { assert } = require "chai"
-else
-  parser = window.ApiaryBlueprintParser
-  assert = window.chai.assert
+parser     = require "../lib/katt-blueprint-parser"
+{ assert } = require "chai"
+
 
 Blueprint            = parser.ast.Blueprint
 Section              = parser.ast.Section
 Resource             = parser.ast.Resource
 Request              = parser.ast.Request
 Response             = parser.ast.Response
-JsonSchemaValidation = parser.ast.JsonSchemaValidation
 
 # AST nodes
 
@@ -69,27 +65,11 @@ filledSections = [
     resources:    filledResources
 ]
 
-filledValidations = [
-  new JsonSchemaValidation
-    method: "POST"
-    url:    "/post-1"
-    body:   "{ \"type\": \"object\" }"
-  new JsonSchemaValidation
-    method: "POST"
-    url:    "/post-2"
-    body:   "{ \"type\": \"object\" }"
-  new JsonSchemaValidation
-    method: "POST"
-    url:    "/post-3"
-    body:   "{ \"type\": \"object\" }"
-]
-
 filledBlueprint = new Blueprint
   location:    "http://example.com/"
   name:        "API"
   description: "Test API"
   sections:    filledSections
-  validations: filledValidations
 
 # JSONs
 
@@ -157,30 +137,11 @@ filledSectionJsons = [
   }
 ]
 
-filledValidationJsons = [
-  {
-    method: "POST"
-    url:    "/post-1"
-    body:   "{ \"type\": \"object\" }"
-  }
-  {
-    method: "POST"
-    url:    "/post-2"
-    body:   "{ \"type\": \"object\" }"
-  }
-  {
-    method: "POST"
-    url:    "/post-3"
-    body:   "{ \"type\": \"object\" }"
-  }
-]
-
 filledBlueprintJson =
   location:    "http://example.com/"
   name:        "API"
   description: "Test API"
   sections:    filledSectionJsons
-  validations: filledValidationJsons
 
 # Blueprints
 
@@ -279,21 +240,6 @@ filledSectionBlueprints = [
   """
 ]
 
-filledValidationBlueprints = [
-  """
-    POST /post-1
-    { "type": "object" }
-  """
-  """
-    POST /post-2
-    { "type": "object" }
-  """
-  """
-    POST /post-3
-    { "type": "object" }
-  """
-]
-
 filledBlueprintBlueprint = """
   HOST: http://example.com/
 
@@ -308,14 +254,6 @@ filledBlueprintBlueprint = """
   #{filledSectionBlueprints[1]}
 
   #{filledSectionBlueprints[2]}
-
-  -- JSON Schema Validations --
-
-  #{filledValidationBlueprints[0]}
-
-  #{filledValidationBlueprints[1]}
-
-  #{filledValidationBlueprints[2]}
 """
 
 bodyTestcases = [
@@ -369,7 +307,6 @@ describe "Blueprint", ->
         assert.deepEqual blueprint.name,        "API"
         assert.deepEqual blueprint.description, "Test API"
         assert.deepEqual blueprint.sections,    filledSections
-        assert.deepEqual blueprint.validations, filledValidations
 
     describe "when not passed property values", ->
       it "uses correct defaults", ->
@@ -377,7 +314,6 @@ describe "Blueprint", ->
         assert.deepEqual emptyBlueprint.name,        null
         assert.deepEqual emptyBlueprint.description, null
         assert.deepEqual emptyBlueprint.sections,    []
-        assert.deepEqual emptyBlueprint.validations, []
 
   describe "#toJSON", ->
     describe "on a filled-in blueprint", ->
@@ -562,49 +498,3 @@ describe "Response", ->
           response = new Response body: testcase.body
 
           assert.deepEqual response.toBlueprint(), "< 200\n#{testcase.blueprint}"
-
-describe "JsonSchemaValidation", ->
-  emptyValidation = new JsonSchemaValidation
-
-  describe ".fromJSON", ->
-    it "creates a new validation from a JSON-serializable object", ->
-      assert.deepEqual JsonSchemaValidation.fromJSON(filledValidationJsons[0]), filledValidations[0]
-
-  describe "#constructor", ->
-    describe "when passed property values", ->
-      it "initializes properties correctly", ->
-        validation = filledValidations[0]
-
-        assert.deepEqual validation.method, "POST"
-        assert.deepEqual validation.url,    "/post-1"
-        assert.deepEqual validation.body,   "{ \"type\": \"object\" }"
-
-    describe "when not passed property values", ->
-      it "uses correct defaults", ->
-        assert.deepEqual emptyValidation.method, "GET"
-        assert.deepEqual emptyValidation.url,    "/"
-        assert.deepEqual emptyValidation.body,   null
-
-  describe "#toJSON", ->
-    describe "on a filled-in validation", ->
-      it "returns a correct JSON-serializable object", ->
-        assert.deepEqual filledValidations[0].toJSON(), filledValidationJsons[0]
-
-  describe "#toBlueprint", ->
-    describe "on an empty validation", ->
-      it "returns a correct blueprint", ->
-        assert.deepEqual emptyValidation.toBlueprint(), "GET /"
-
-    describe "on a filled-in validation", ->
-      it "returns a correct blueprint", ->
-        assert.deepEqual filledValidations[0].toBlueprint(), filledValidationBlueprints[0]
-
-    describe "on validations with weird bodies", ->
-      it "uses suitable body syntax", ->
-        for testcase in bodyTestcases
-          validation = new JsonSchemaValidation body: testcase.body
-
-          assert.deepEqual validation.toBlueprint(), """
-            GET /
-            #{testcase.blueprint}
-          """

@@ -22,7 +22,7 @@ escapeBody = (body) ->
   else
     body
 
-# Represents an Apiary blueprint.
+# Represents a KATT API blueprint.
 class Blueprint
   @fromJSON: (json) ->
     new this
@@ -30,7 +30,6 @@ class Blueprint
       name:        json.name
       description: json.description
       sections:    Section.fromJSON(s) for s in json.sections
-      validations: JsonSchemaValidation.fromJSON(v) for v in json.validations
 
   constructor: (props = {}) ->
     fillProps this, props,
@@ -38,7 +37,6 @@ class Blueprint
       name:        null
       description: null
       sections:    []
-      validations: []
 
   resources: (opts) ->
     resources = []
@@ -53,7 +51,6 @@ class Blueprint
     name:        @name
     description: @description
     sections:    s.toJSON() for s in @sections
-    validations: v.toJSON() for v in @validations
 
   toBlueprint: ->
     combineParts "\n\n", (parts) =>
@@ -63,10 +60,7 @@ class Blueprint
 
       parts.push s.toBlueprint() for s in @sections
 
-      parts.push "-- JSON Schema Validations --" if @validations.length > 0
-      parts.push v.toBlueprint() for v in @validations
-
-# Represents a section of an Apiary blueprint.
+# Represents a section of a KATT API blueprint.
 class Section
   @fromJSON: (json) ->
     new this
@@ -95,7 +89,7 @@ class Section
 
       parts.push r.toBlueprint() for r in @resources
 
-# Represents a resource of an Apiary blueprint.
+# Represents a resource of a KATT API blueprint.
 class Resource
   @fromJSON: (json) ->
     new this
@@ -180,34 +174,9 @@ class Response
       parts.push "< #{name}: #{value}" for name, value of @headers
       parts.push escapeBody(@body) if @body
 
-# Represents a JSON schema validation.
-class JsonSchemaValidation
-  @fromJSON: (json) ->
-    new this
-      method: json.method
-      url:    json.url
-      body:   json.body
-
-  constructor: (props = {}) ->
-    fillProps this, props,
-      method: "GET",
-      url:    "/",
-      body:   null
-
-  toJSON: ->
-    method: @method
-    url:    @url
-    body:   @body
-
-  toBlueprint: ->
-    combineParts "\n", (parts) =>
-      parts.push "#{@method} #{@url}"
-      parts.push escapeBody(@body) if @body
-
 module.exports =
   Blueprint:            Blueprint
   Section:              Section
   Resource:             Resource
   Request:              Request
   Response:             Response
-  JsonSchemaValidation: JsonSchemaValidation
