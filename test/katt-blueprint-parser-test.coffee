@@ -462,9 +462,9 @@ describe "KATT API blueprint parser", ->
     assert.parse """
       --- API ---
 
-      DELETE /
+      MKCOL /
       < 200
-    """, operationBlueprint method: "DELETE"
+    """, operationBlueprint method: "MKCOL"
 
     assert.parse """
       --- API ---
@@ -524,9 +524,9 @@ describe "KATT API blueprint parser", ->
     assert.parse """
       --- API ---
 
-      MKCOL /
+      HEAD /
       < 200
-    """, operationBlueprint method: "MKCOL"
+    """, operationBlueprint method: "HEAD"
 
   # Canonical Request is:
   #
