@@ -459,6 +459,7 @@ describe "KATT API blueprint parser", ->
     """, sectionBlueprint name: "abcd", description: null
 
     assert.parse """
+
       --- API ---
 
       --

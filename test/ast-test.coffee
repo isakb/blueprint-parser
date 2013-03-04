@@ -14,20 +14,10 @@ filledRequest = new Request
   headers: { "Content-Type": "application/json" }
   body:    "{ \"status\": \"ok\" }"
 
-filledResponses = [
-  new Response
-    status:  200
-    headers: { "Content-Type": "application/json" }
-    body:    "{ \"id\": 1 }"
-  new Response
-    status:  200
-    headers: { "Content-Type": "application/json" }
-    body:    "{ \"id\": 2 }"
-  new Response
-    status:  200
-    headers: { "Content-Type": "application/json" }
-    body:    "{ \"id\": 3 }"
-]
+filledResponse = new Response
+  status:  200
+  headers: { "Content-Type": "application/json" }
+  body:    "{ \"id\": 1 }"
 
 filledResources = [
   new Resource
@@ -35,19 +25,19 @@ filledResources = [
     method:      "POST"
     url:         "/post-1"
     request:     filledRequest
-    responses:   filledResponses
+    response:    filledResponse
   new Resource
     description: "Post resource 2"
     method:      "POST"
     url:         "/post-2"
     request:     filledRequest
-    responses:   filledResponses
+    response:    filledResponse
   new Resource
     description: "Post resource 3"
     method:      "POST"
     url:         "/post-3"
     request:     filledRequest
-    responses:   filledResponses
+    response:    filledResponse
 ]
 
 filledSections = [
@@ -77,23 +67,11 @@ filledRequestJson =
   headers: { "Content-Type": "application/json" }
   body:    "{ \"status\": \"ok\" }"
 
-filledResponseJsons = [
-  {
+filledResponseJson =
     status:  200
     headers: { "Content-Type": "application/json" }
     body:    "{ \"id\": 1 }"
-  }
-  {
-    status:  200
-    headers: { "Content-Type": "application/json" }
-    body:    "{ \"id\": 2 }"
-  }
-  {
-    status:  200
-    headers: { "Content-Type": "application/json" }
-    body:    "{ \"id\": 3 }"
-  }
-]
+
 
 filledResourceJsons = [
   {
@@ -101,21 +79,21 @@ filledResourceJsons = [
     method:      "POST"
     url:         "/post-1"
     request:     filledRequestJson
-    responses:   filledResponseJsons
+    response:    filledResponseJson
   }
   {
     description: "Post resource 2"
     method:      "POST"
     url:         "/post-2"
     request:     filledRequestJson
-    responses:   filledResponseJsons
+    response:    filledResponseJson
   }
   {
     description: "Post resource 3"
     method:      "POST"
     url:         "/post-3"
     request:     filledRequestJson
-    responses:   filledResponseJsons
+    response:    filledResponseJson
   }
 ]
 
@@ -150,54 +128,31 @@ filledRequestBlueprint = """
   { "status": "ok" }
 """
 
-filledResponseBlueprints = [
-  """
-    < 200
-    < Content-Type: application/json
-    { "id": 1 }
-  """
-  """
-    < 200
-    < Content-Type: application/json
-    { "id": 2 }
-  """
-  """
-    < 200
-    < Content-Type: application/json
-    { "id": 3 }
-  """
-]
+filledResponseBlueprint = """
+  < 200
+  < Content-Type: application/json
+  { "id": 1 }
+"""
+
 
 filledResourceBlueprints = [
   """
     Post resource 1
     POST /post-1
     #{filledRequestBlueprint}
-    #{filledResponseBlueprints[0]}
-    +++++
-    #{filledResponseBlueprints[1]}
-    +++++
-    #{filledResponseBlueprints[2]}
+    #{filledResponseBlueprint}
   """
   """
     Post resource 2
     POST /post-2
     #{filledRequestBlueprint}
-    #{filledResponseBlueprints[0]}
-    +++++
-    #{filledResponseBlueprints[1]}
-    +++++
-    #{filledResponseBlueprints[2]}
+    #{filledResponseBlueprint}
   """
   """
     Post resource 3
     POST /post-3
     #{filledRequestBlueprint}
-    #{filledResponseBlueprints[0]}
-    +++++
-    #{filledResponseBlueprints[1]}
-    +++++
-    #{filledResponseBlueprints[2]}
+    #{filledResponseBlueprint}
   """
 ]
 
@@ -393,7 +348,7 @@ describe "Resource", ->
         assert.deepEqual resource.method,      "POST"
         assert.deepEqual resource.url,         "/post-1"
         assert.deepEqual resource.request,     filledRequest
-        assert.deepEqual resource.responses,   filledResponses
+        assert.deepEqual resource.response,    filledResponse
 
     describe "when not passed property values", ->
       it "uses correct defaults", ->
@@ -401,7 +356,7 @@ describe "Resource", ->
         assert.deepEqual emptyResource.method,      "GET"
         assert.deepEqual emptyResource.url,         "/"
         assert.deepEqual emptyResource.request,     new Request
-        assert.deepEqual emptyResource.responses,   [new Response]
+        assert.deepEqual emptyResource.response,    new Response
 
   describe "#toJSON", ->
     describe "on a filled-in resource", ->
@@ -461,12 +416,12 @@ describe "Response", ->
 
   describe ".fromJSON", ->
     it "creates a new response from a JSON-serializable object", ->
-      assert.deepEqual Response.fromJSON(filledResponseJsons[0]), filledResponses[0]
+      assert.deepEqual Response.fromJSON(filledResponseJson), filledResponse
 
   describe "#constructor", ->
     describe "when passed property values", ->
       it "initializes properties correctly", ->
-        response = filledResponses[0]
+        response = filledResponse
 
         assert.deepEqual response.status,  200
         assert.deepEqual response.headers, { "Content-Type": "application/json" }
@@ -481,7 +436,7 @@ describe "Response", ->
   describe "#toJSON", ->
     describe "on a filled-in response", ->
       it "returns a correct JSON-serializable object", ->
-        assert.deepEqual filledResponses[0].toJSON(), filledResponseJsons[0]
+        assert.deepEqual filledResponse.toJSON(), filledResponseJson
 
   describe "#toBlueprint", ->
     describe "on an empty response", ->
@@ -490,7 +445,7 @@ describe "Response", ->
 
     describe "on a filled-in response", ->
       it "returns a correct blueprint", ->
-        assert.deepEqual filledResponses[0].toBlueprint(), filledResponseBlueprints[0]
+        assert.deepEqual filledResponse.toBlueprint(), filledResponseBlueprint
 
     describe "on responses with weird bodies", ->
       it "uses suitable body syntax", ->

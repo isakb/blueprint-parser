@@ -97,7 +97,7 @@ class Resource
       method:      json.method
       url:         json.url
       request:     Request.fromJSON(json.request)
-      responses:   Response.fromJSON(r) for r in json.responses
+      response:    Response.fromJSON(json.response)
 
   constructor: (props = {}) ->
     fillProps this, props,
@@ -105,7 +105,7 @@ class Resource
       method:      "GET"
       url:         "/"
       request:     new Request
-      responses:   [new Response]
+      response:    new Response
 
   getUrlFragment: -> "#{@method.toLowerCase()}-#{encodeURIComponent @url}"
 
@@ -114,7 +114,7 @@ class Resource
     method:      @method
     url:         @url
     request:     @request.toJSON()
-    responses:   r.toJSON() for r in @responses
+    response:    @response.toJSON()
 
   toBlueprint: ->
     combineParts "\n", (parts) =>
@@ -124,9 +124,8 @@ class Resource
       requestBlueprint = @request.toBlueprint()
       parts.push requestBlueprint if requestBlueprint isnt ""
 
-      responsesBlueprint = combineParts "\n+++++\n", (parts) =>
-        parts.push r.toBlueprint() for r in @responses
-      parts.push responsesBlueprint
+      responseBlueprint =  @response.toBlueprint()
+      parts.push responseBlueprint if responseBlueprint isnt ""
 
 # Represents a request of a resource.
 class Request
