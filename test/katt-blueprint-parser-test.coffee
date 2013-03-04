@@ -336,64 +336,7 @@ describe "KATT API blueprint parser", ->
     """, new Blueprint
       name:        "API"
       operations: [
-        new Operation url: "url"
-        new Operation url: "/"
         new Operation url: "/url"
-      ]
-
-    assert.parse """
-      --- API ---
-
-      GET url
-      < 200
-
-      GET /
-      < 200
-
-      GET /url
-      < 200
-    """, new Blueprint
-      name:        "API"
-      operations: [
-        new Operation url: "url"
-        new Operation url: "/"
-        new Operation url: "/url"
-      ]
-
-    assert.parse """
-      --- API ---
-
-      GET url
-      < 200
-
-      GET /
-      < 200
-
-      GET /url
-      < 200
-    """, new Blueprint
-      name:        "API"
-      operations: [
-        new Operation url: "url"
-        new Operation url: "/"
-        new Operation url: "/url"
-      ]
-
-    assert.parse """
-      --- API ---
-
-      GET url
-      < 200
-
-      GET /
-      < 200
-
-      GET /url
-      < 200
-    """, new Blueprint
-      name:        "API"
-      operations:    [
-        new Operation url: "url"
         new Operation url: "/"
         new Operation url: "/url"
       ]

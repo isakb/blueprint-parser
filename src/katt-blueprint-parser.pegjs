@@ -44,7 +44,7 @@
       Request              = this.ast.Request,
       Response             = this.ast.Response;
 
-  var urlPrefix = "", bodyTerminator;
+  var bodyTerminator;
 }
 
 /* ===== Primary Rules ===== */
@@ -91,9 +91,7 @@ Operation
     request:Request
     response:Response
     {
-      var url = urlPrefix !== ""
-        ? "/" + urlPrefix.replace(/\/$/, "") + "/" + signature.url.replace(/^\//, "")
-        : signature.url;
+      var url = "/" + signature.url.replace(/^\//, "");
 
       return new Operation({
         description: nullIfEmpty(description),
