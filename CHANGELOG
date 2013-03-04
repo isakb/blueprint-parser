@@ -1,3 +1,7 @@
+1.0.1 (2013-03-03)
+------------------
+* An Operation's url is now always an absolute path.
+
 1.0.0 (2013-03-03)
 ------------------
 * Remove support for browsers, since we only care about Node.js.
