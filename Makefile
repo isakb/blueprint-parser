@@ -14,8 +14,6 @@ PARSER_OUT_FILE = $(LIB_DIR)/katt-blueprint-parser.js
 AST_SRC_FILE = $(SRC_DIR)/ast.coffee
 AST_OUT_FILE = $(LIB_DIR)/ast.js
 
-VERSION_FILE = VERSION
-
 # ===== Executables =====
 
 COFFEE = $(NODE_MODULES_BIN_DIR)/coffee

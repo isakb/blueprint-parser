@@ -17,9 +17,8 @@ This document describes how to release a new version of KATT Blueprint Parser.
 
   2. **Update version**
 
-     Look at `VERSION` for the current version. Grep for it in the code and
-     replace all relevant occurrences (which are usually all occurrences beyond
-     the one in `CHANGELOG`) with the new version.
+     Replace the value of the `version` field in `package.json` with the new
+     version.
 
      What the new version should be is determined by the set of changes since
      the last release. The parser uses [semantic
