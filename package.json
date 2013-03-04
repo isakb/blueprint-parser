@@ -1,6 +1,6 @@
 {
   "name":            "katt-blueprint-parser",
-  "version":         "1.0.0",
+  "version":         "1.0.1",
   "description":     "KATT blueprint parser (derived from Apiary blueprint parser)",
   "homepage":        "https://github.com/isakb/blueprint-parser",
   "author":          {
