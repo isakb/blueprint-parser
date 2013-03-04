@@ -1,3 +1,21 @@
+1.0.0 (2013-03-03)
+------------------
+* Remove support for browsers, since we only care about Node.js.
+* Remove as much code as possible to make a very simple file format for KATT.
+  This also means that we don't care about backward compatibility or future
+  compatibility with APIary's blueprint format.
+* A Blueprint no longer has Sections. Instead it has Operations, where an
+  Operation consists of a Request and a Response, i.e. an Operation is what
+  was previously called a Resource. The naming is simply changed to better
+  reflect KATT's typical use case. Another difference is that a Resource could
+  have one request, and one or more responses. An Operation consists of exactly
+  one Request and one Response.
+* The HOST field is removed.
+* The old ACE highlighter is removed to keep the codebase simple.
+* JSONSchema validation is removed, since this is better done in other ways.
+  We don't want to clutter our .apib files with JSON Schemas since the
+  validation can easily be done in other ways.
+
 0.4.2 (2013-03-01)
 ------------------
 * Added explicit support for the HEAD HTTP method. Removed superfluous DELETE HTTP method.
