@@ -1226,4 +1226,4 @@ describe "KATT API blueprint parser", ->
 
   it "returns a parsed blueprint #toBlueprint() as the original blueprint", ->
     exampleBlueprint = fs.readFileSync(EXAMPLE_FILE).toString()
-    chai.expect(parser.parse(exampleBlueprint).toBlueprint() + '\n').to.equal(exampleBlueprint)
+    assert.deepEqual parser.parse(exampleBlueprint).toBlueprint() + '\n', exampleBlueprint
