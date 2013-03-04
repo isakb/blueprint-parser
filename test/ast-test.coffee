@@ -4,7 +4,7 @@ parser     = require "../lib/katt-blueprint-parser"
 
 Blueprint            = parser.ast.Blueprint
 Section              = parser.ast.Section
-Resource             = parser.ast.Resource
+Interaction          = parser.ast.Interaction
 Request              = parser.ast.Request
 Response             = parser.ast.Response
 
@@ -19,21 +19,21 @@ filledResponse = new Response
   headers: { "Content-Type": "application/json" }
   body:    "{ \"id\": 1 }"
 
-filledResources = [
-  new Resource
-    description: "Post resource 1"
+filledInteractions = [
+  new Interaction
+    description: "Post to resource 1"
     method:      "POST"
     url:         "/post-1"
     request:     filledRequest
     response:    filledResponse
-  new Resource
-    description: "Post resource 2"
+  new Interaction
+    description: "Post to resource 2"
     method:      "POST"
     url:         "/post-2"
     request:     filledRequest
     response:    filledResponse
-  new Resource
-    description: "Post resource 3"
+  new Interaction
+    description: "Post to resource 3"
     method:      "POST"
     url:         "/post-3"
     request:     filledRequest
@@ -42,17 +42,17 @@ filledResources = [
 
 filledSections = [
   new Section
-    name:        "Section 1"
-    description: "Test section 1"
-    resources:    filledResources
+    name:         "Section 1"
+    description:  "Test section 1"
+    interactions: filledInteractions
   new Section
-    name:        "Section 2"
-    description: "Test section 2"
-    resources:    filledResources
+    name:         "Section 2"
+    description:  "Test section 2"
+    interactions: filledInteractions
   new Section
-    name:        "Section 3"
-    description: "Test section 3"
-    resources:    filledResources
+    name:         "Section 3"
+    description:  "Test section 3"
+    interactions: filledInteractions
 ]
 
 filledBlueprint = new Blueprint
@@ -73,23 +73,23 @@ filledResponseJson =
     body:    "{ \"id\": 1 }"
 
 
-filledResourceJsons = [
+filledInteractionJsons = [
   {
-    description: "Post resource 1"
+    description: "Post to resource 1"
     method:      "POST"
     url:         "/post-1"
     request:     filledRequestJson
     response:    filledResponseJson
   }
   {
-    description: "Post resource 2"
+    description: "Post to resource 2"
     method:      "POST"
     url:         "/post-2"
     request:     filledRequestJson
     response:    filledResponseJson
   }
   {
-    description: "Post resource 3"
+    description: "Post to resource 3"
     method:      "POST"
     url:         "/post-3"
     request:     filledRequestJson
@@ -99,19 +99,19 @@ filledResourceJsons = [
 
 filledSectionJsons = [
   {
-    name:        "Section 1"
-    description: "Test section 1"
-    resources:    filledResourceJsons
+    name:         "Section 1"
+    description:  "Test section 1"
+    interactions: filledInteractionJsons
   }
   {
-    name:        "Section 2"
-    description: "Test section 2"
-    resources:    filledResourceJsons
+    name:         "Section 2"
+    description:  "Test section 2"
+    interactions: filledInteractionJsons
   }
   {
-    name:        "Section 3"
-    description: "Test section 3"
-    resources:    filledResourceJsons
+    name:         "Section 3"
+    description:  "Test section 3"
+    interactions: filledInteractionJsons
   }
 ]
 
@@ -135,21 +135,21 @@ filledResponseBlueprint = """
 """
 
 
-filledResourceBlueprints = [
+filledInteractionBlueprints = [
   """
-    Post resource 1
+    Post to resource 1
     POST /post-1
     #{filledRequestBlueprint}
     #{filledResponseBlueprint}
   """
   """
-    Post resource 2
+    Post to resource 2
     POST /post-2
     #{filledRequestBlueprint}
     #{filledResponseBlueprint}
   """
   """
-    Post resource 3
+    Post to resource 3
     POST /post-3
     #{filledRequestBlueprint}
     #{filledResponseBlueprint}
@@ -163,11 +163,11 @@ filledSectionBlueprints = [
     Test section 1
     --
 
-    #{filledResourceBlueprints[0]}
+    #{filledInteractionBlueprints[0]}
 
-    #{filledResourceBlueprints[1]}
+    #{filledInteractionBlueprints[1]}
 
-    #{filledResourceBlueprints[2]}
+    #{filledInteractionBlueprints[2]}
   """
   """
     --
@@ -175,11 +175,11 @@ filledSectionBlueprints = [
     Test section 2
     --
 
-    #{filledResourceBlueprints[0]}
+    #{filledInteractionBlueprints[0]}
 
-    #{filledResourceBlueprints[1]}
+    #{filledInteractionBlueprints[1]}
 
-    #{filledResourceBlueprints[2]}
+    #{filledInteractionBlueprints[2]}
   """
   """
     --
@@ -187,11 +187,11 @@ filledSectionBlueprints = [
     Test section 3
     --
 
-    #{filledResourceBlueprints[0]}
+    #{filledInteractionBlueprints[0]}
 
-    #{filledResourceBlueprints[1]}
+    #{filledInteractionBlueprints[1]}
 
-    #{filledResourceBlueprints[2]}
+    #{filledInteractionBlueprints[2]}
   """
 ]
 
@@ -296,15 +296,15 @@ describe "Section", ->
       it "initializes properties correctly", ->
         section = filledSections[0]
 
-        assert.deepEqual section.name,        "Section 1"
-        assert.deepEqual section.description, "Test section 1"
-        assert.deepEqual section.resources,   filledResources
+        assert.deepEqual section.name,          "Section 1"
+        assert.deepEqual section.description,   "Test section 1"
+        assert.deepEqual section.interactions,  filledInteractions
 
     describe "when not passed property values", ->
       it "uses correct defaults", ->
-        assert.deepEqual emptySection.name,        null
-        assert.deepEqual emptySection.description, null
-        assert.deepEqual emptySection.resources,   []
+        assert.deepEqual emptySection.name,         null
+        assert.deepEqual emptySection.description,  null
+        assert.deepEqual emptySection.interactions, []
 
   describe "#toJSON", ->
     describe "on a filled-in section", ->
@@ -332,45 +332,45 @@ describe "Section", ->
       it "returns a correct blueprint", ->
         assert.deepEqual filledSections[0].toBlueprint(), filledSectionBlueprints[0]
 
-describe "Resource", ->
-  emptyResource = new Resource
+describe "Interaction", ->
+  emptyInteraction = new Interaction
 
   describe ".fromJSON", ->
-    it "creates a new resource from a JSON-serializable object", ->
-      assert.deepEqual Resource.fromJSON(filledResourceJsons[0]), filledResources[0]
+    it "creates a new interaction from a JSON-serializable object", ->
+      assert.deepEqual Interaction.fromJSON(filledInteractionJsons[0]), filledInteractions[0]
 
   describe "#constructor", ->
     describe "when passed property values", ->
       it "initializes properties correctly", ->
-        resource = filledResources[0]
+        interaction = filledInteractions[0]
 
-        assert.deepEqual resource.description, "Post resource 1"
-        assert.deepEqual resource.method,      "POST"
-        assert.deepEqual resource.url,         "/post-1"
-        assert.deepEqual resource.request,     filledRequest
-        assert.deepEqual resource.response,    filledResponse
+        assert.deepEqual interaction.description, "Post to resource 1"
+        assert.deepEqual interaction.method,      "POST"
+        assert.deepEqual interaction.url,         "/post-1"
+        assert.deepEqual interaction.request,     filledRequest
+        assert.deepEqual interaction.response,    filledResponse
 
     describe "when not passed property values", ->
       it "uses correct defaults", ->
-        assert.deepEqual emptyResource.description, null
-        assert.deepEqual emptyResource.method,      "GET"
-        assert.deepEqual emptyResource.url,         "/"
-        assert.deepEqual emptyResource.request,     new Request
-        assert.deepEqual emptyResource.response,    new Response
+        assert.deepEqual emptyInteraction.description, null
+        assert.deepEqual emptyInteraction.method,      "GET"
+        assert.deepEqual emptyInteraction.url,         "/"
+        assert.deepEqual emptyInteraction.request,     new Request
+        assert.deepEqual emptyInteraction.response,    new Response
 
   describe "#toJSON", ->
-    describe "on a filled-in resource", ->
+    describe "on a filled-in interaction", ->
       it "returns a correct JSON-serializable object", ->
-        assert.deepEqual filledResources[0].toJSON(), filledResourceJsons[0]
+        assert.deepEqual filledInteractions[0].toJSON(), filledInteractionJsons[0]
 
   describe "#toBlueprint", ->
-    describe "on an empty resource", ->
+    describe "on an empty interaction", ->
       it "returns a correct blueprint", ->
-        assert.deepEqual emptyResource.toBlueprint(), "GET /\n< 200"
+        assert.deepEqual emptyInteraction.toBlueprint(), "GET /\n< 200"
 
-    describe "on a filled-in resource", ->
+    describe "on a filled-in interaction", ->
       it "returns a correct blueprint", ->
-        assert.deepEqual filledResources[0].toBlueprint(), filledResourceBlueprints[0]
+        assert.deepEqual filledInteractions[0].toBlueprint(), filledInteractionBlueprints[0]
 
 describe "Request", ->
   emptyRequest = new Request

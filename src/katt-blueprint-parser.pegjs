@@ -41,7 +41,7 @@
    */
   var Blueprint            = this.ast.Blueprint,
       Section              = this.ast.Section,
-      Resource             = this.ast.Resource,
+      Interaction          = this.ast.Interaction,
       Request              = this.ast.Request,
       Response             = this.ast.Response;
 
@@ -58,17 +58,17 @@ API
     EmptyLine*
     description:APIDescription?
     EmptyLine*
-    resources:Resources
+    interactions:Interactions
     EmptyLine*
     sections:Sections
     EmptyLine*
     {
-      /* Wrap free-standing resources into an anonymnous section. */
-      if (resources.length > 0) {
+      /* Wrap free-standing interactions into an anonymnous section. */
+      if (interactions.length > 0) {
         sections.unshift(new Section({
-          name:        null,
-          description: null,
-          resources:   resources
+          name:         null,
+          description:  null,
+          interactions: interactions
         }));
       }
 
@@ -113,11 +113,11 @@ Sections
     }
 
 Section
-  = header:SectionHeader EmptyLine* resources:Resources {
+  = header:SectionHeader EmptyLine* interactions:Interactions {
       return new Section({
-        name:        nullIfEmpty(header.name),
-        description: nullIfEmpty(header.description),
-        resources:   resources
+        name:         nullIfEmpty(header.name),
+        description:  nullIfEmpty(header.description),
+        interactions: interactions
       });
     }
 
@@ -144,20 +144,20 @@ SectionHeaderLong
 SectionHeaderLongLine
   = !("--" S* EOLF) text:Text0 EOL { return text; }
 
-Resources
-  = head:Resource?
-    tail:(EmptyLine* resource:Resource { return resource; })*
+Interactions
+  = head:Interaction?
+    tail:(EmptyLine* interaction:Interaction { return interaction; })*
     {
       return combineHeadTail(head, tail);
     }
 
-Resource
+Interaction
   /*
-   * Initial !Section needed so that parsing of sectionless resources (which
-   * are placed before resources in sections) terminates correctly.
+   * Initial !Section needed so that parsing of sectionless interactions (which
+   * are placed before interactions in sections) terminates correctly.
    */
   = !Section
-    description:ResourceDescription?
+    description:InteractionDescription?
     signature:Signature
     request:Request
     responses:Responses
@@ -166,7 +166,7 @@ Resource
         ? "/" + urlPrefix.replace(/\/$/, "") + "/" + signature.url.replace(/^\//, "")
         : signature.url;
 
-      return new Resource({
+      return new Interaction({
         description: nullIfEmpty(description),
         method:      signature.method,
         url:         url,
@@ -175,10 +175,10 @@ Resource
       });
     }
 
-ResourceDescription "resource description"
-  = lines:ResourceDescriptionLine+ { return lines.join("\n"); }
+InteractionDescription "interaction description"
+  = lines:InteractionDescriptionLine+ { return lines.join("\n"); }
 
-ResourceDescriptionLine
+InteractionDescriptionLine
   = !HttpMethod text:Text0 EOL { return text; }
 
 /* Assembled from RFC 2616, 5323, 5789. */

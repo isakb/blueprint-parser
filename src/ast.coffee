@@ -38,13 +38,13 @@ class Blueprint
       description: null
       sections:    []
 
-  resources: (opts) ->
-    resources = []
-    for s in @sections then for r in s.resources
+  interactions: (opts) ->
+    interactions = []
+    for s in @sections then for r in s.interactions
       if opts?.method and opts.method isnt r.method then continue
       if opts?.url and opts.url isnt r.url then continue
-      resources.push r
-    return resources
+      interactions.push r
+    return interactions
 
   toJSON: ->
     location:    @location
@@ -66,18 +66,18 @@ class Section
     new this
       name:        json.name
       description: json.description
-      resources:   Resource.fromJSON(r) for r in json.resources
+      interactions:   Interaction.fromJSON(r) for r in json.interactions
 
   constructor: (props = {}) ->
     fillProps this, props,
       name:        null
       description: null
-      resources:   []
+      interactions:   []
 
   toJSON: ->
-    name:        @name
-    description: @description
-    resources:   r.toJSON() for r in @resources
+    name:         @name
+    description:  @description
+    interactions: r.toJSON() for r in @interactions
 
   toBlueprint: ->
     combineParts "\n\n", (parts) =>
@@ -87,10 +87,10 @@ class Section
         else
           parts.push "-- #{@name} --"
 
-      parts.push r.toBlueprint() for r in @resources
+      parts.push r.toBlueprint() for r in @interactions
 
-# Represents a resource of a KATT API blueprint.
-class Resource
+# Represents an interaction of a KATT API blueprint scenario.
+class Interaction
   @fromJSON: (json) ->
     new this
       description: json.description
@@ -127,7 +127,7 @@ class Resource
       responseBlueprint =  @response.toBlueprint()
       parts.push responseBlueprint if responseBlueprint isnt ""
 
-# Represents a request of a resource.
+# Represents a request of an interaction.
 class Request
   @fromJSON: (json) ->
     new this
@@ -148,7 +148,7 @@ class Request
       parts.push "> #{name}: #{value}" for name, value of @headers
       parts.push escapeBody(@body) if @body
 
-# Represents a response of a resource.
+# Represents a response of an interaction.
 class Response
   @fromJSON: (json) ->
     new this
@@ -176,6 +176,6 @@ class Response
 module.exports =
   Blueprint:            Blueprint
   Section:              Section
-  Resource:             Resource
+  Interaction:          Interaction
   Request:              Request
   Response:             Response
