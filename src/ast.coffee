@@ -26,14 +26,12 @@ escapeBody = (body) ->
 class Blueprint
   @fromJSON: (json) ->
     new this
-      location:     json.location
       name:         json.name
       description:  json.description
       interactions: Interaction.fromJSON(s) for s in json.interactions
 
   constructor: (props = {}) ->
     fillProps this, props,
-      location:     null
       name:         null
       description:  null
       interactions: []
@@ -45,14 +43,12 @@ class Blueprint
       i
 
   toJSON: ->
-    location:     @location
     name:         @name
     description:  @description
     interactions: i.toJSON() for i in @interactions
 
   toBlueprint: ->
     combineParts "\n\n", (parts) =>
-      parts.push "HOST: #{@location}"        if @location
       parts.push "--- #{@name} ---"          if @name
       parts.push "---\n#{@description}\n---" if @description
 

@@ -51,8 +51,6 @@
 
 API
   = EmptyLine*
-    location:Location?
-    EmptyLine*
     name:APIName
     EmptyLine*
     description:APIDescription?
@@ -61,23 +59,10 @@ API
     EmptyLine*
     {
       return new Blueprint({
-        location:     nullIfEmpty(location),
         name:         nullIfEmpty(name),
         description:  nullIfEmpty(description),
         interactions: interactions
       });
-    }
-
-Location
-  = "HOST:" S* url:Text0 EOLF {
-      var urlWithoutProtocol = url.replace(/^https?:\/\//, ""),
-          slashIndex         = urlWithoutProtocol.indexOf("/");
-
-      if (slashIndex > 0) {
-        urlPrefix = urlWithoutProtocol.slice(slashIndex + 1);
-      }
-
-      return url;
     }
 
 APIName

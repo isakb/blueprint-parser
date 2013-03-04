@@ -11,7 +11,7 @@ chai.use (chai, util) ->
 
     assertion.assert(
       util.eql(parser.parse(input), result)
-      "expected \#{act} to parse as \#{exp}"
+      "expected \#{act} to parse as \#{exp})"
       "expected \#{act} not to parse as \#{exp}"
       result
       input
@@ -64,7 +64,6 @@ describe "KATT API blueprint parser", ->
     # because almost all such tests would use incomplete blueprints already
     # exercised in other tests, only introducing duplication.
     blueprint = new Blueprint
-      location:    "http://example.com/"
       name:        "API"
       description: "Test API"
       interactions: [
@@ -74,7 +73,6 @@ describe "KATT API blueprint parser", ->
       ]
 
     assert.parse """
-      HOST: http://example.com/
       --- API ---
       ---
       Test API
@@ -90,8 +88,6 @@ describe "KATT API blueprint parser", ->
     """, blueprint
 
     assert.parse """
-
-      HOST: http://example.com/
 
       --- API ---
 
@@ -110,10 +106,6 @@ describe "KATT API blueprint parser", ->
     """, blueprint
 
     assert.parse """
-
-
-
-      HOST: http://example.com/
 
 
 
@@ -140,25 +132,6 @@ describe "KATT API blueprint parser", ->
 
     """, blueprint
 
-  # Canonical Location is "HOST: http://example.com/".
-  it "parses Location", ->
-    assert.parse """
-      HOST:abcd
-
-      --- API ---
-    """, new Blueprint location: "abcd", name: "API"
-
-    assert.parse """
-      HOST: abcd
-
-      --- API ---
-    """, new Blueprint location: "abcd", name: "API"
-
-    assert.parse """
-      HOST:   abcd
-
-      --- API ---
-    """, new Blueprint location: "abcd", name: "API"
 
   # Canonical APIName is "--- API ---".
   it "parses APIName", ->
@@ -350,8 +323,6 @@ describe "KATT API blueprint parser", ->
       response:    response
 
     assert.parse """
-      HOST: http://example.com
-
       --- API ---
 
       GET url
@@ -363,7 +334,6 @@ describe "KATT API blueprint parser", ->
       GET /url
       < 200
     """, new Blueprint
-      location:    "http://example.com"
       name:        "API"
       interactions: [
         new Interaction url: "url"
@@ -372,8 +342,6 @@ describe "KATT API blueprint parser", ->
       ]
 
     assert.parse """
-      HOST: http://example.com/
-
       --- API ---
 
       GET url
@@ -385,7 +353,6 @@ describe "KATT API blueprint parser", ->
       GET /url
       < 200
     """, new Blueprint
-      location:    "http://example.com/"
       name:        "API"
       interactions: [
         new Interaction url: "url"
@@ -394,8 +361,6 @@ describe "KATT API blueprint parser", ->
       ]
 
     assert.parse """
-      HOST: http://example.com/path
-
       --- API ---
 
       GET url
@@ -407,17 +372,14 @@ describe "KATT API blueprint parser", ->
       GET /url
       < 200
     """, new Blueprint
-      location:    "http://example.com/path"
       name:        "API"
       interactions: [
-        new Interaction url: "/path/url"
-        new Interaction url: "/path/"
-        new Interaction url: "/path/url"
+        new Interaction url: "url"
+        new Interaction url: "/"
+        new Interaction url: "/url"
       ]
 
     assert.parse """
-      HOST: http://example.com/path/
-
       --- API ---
 
       GET url
@@ -429,12 +391,11 @@ describe "KATT API blueprint parser", ->
       GET /url
       < 200
     """, new Blueprint
-      location:    "http://example.com/path/"
       name:        "API"
       interactions:    [
-        new Interaction url: "/path/url"
-        new Interaction url: "/path/"
-        new Interaction url: "/path/url"
+        new Interaction url: "url"
+        new Interaction url: "/"
+        new Interaction url: "/url"
       ]
 
   # Canonical InteractionDescription is "Root resource".
@@ -1224,7 +1185,6 @@ describe "KATT API blueprint parser", ->
   it "parses demo blueprint", ->
     demoBlueprint = fs.readFileSync(DEMO_FILE).toString()
     assert.parse demoBlueprint, new Blueprint
-      location:    "http://www.google.com/"
       name:        "Sample API v2"
       description: "Welcome to the our sample API documentation. All comments can be written in (support [Markdown](http://daringfireball.net/projects/markdown/syntax) syntax)"
       interactions:  [

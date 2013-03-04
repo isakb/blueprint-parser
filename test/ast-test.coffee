@@ -40,7 +40,6 @@ filledInteractions = [
 ]
 
 filledBlueprint = new Blueprint
-  location:    "http://example.com/"
   name:        "API"
   description: "Test API"
   interactions: filledInteractions
@@ -82,7 +81,6 @@ filledInteractionJsons = [
 ]
 
 filledBlueprintJson =
-  location:     "http://example.com/"
   name:         "API"
   description:  "Test API"
   interactions: filledInteractionJsons
@@ -123,8 +121,6 @@ filledInteractionBlueprints = [
 ]
 
 filledBlueprintBlueprint = """
-  HOST: http://example.com/
-
   --- API ---
 
   ---
@@ -185,14 +181,12 @@ describe "Blueprint", ->
       it "initializes properties correctly", ->
         blueprint = filledBlueprint
 
-        assert.deepEqual blueprint.location,      "http://example.com/"
         assert.deepEqual blueprint.name,          "API"
         assert.deepEqual blueprint.description,   "Test API"
         assert.deepEqual blueprint.interactions,  filledInteractions
 
     describe "when not passed property values", ->
       it "uses correct defaults", ->
-        assert.deepEqual emptyBlueprint.location,     null
         assert.deepEqual emptyBlueprint.name,         null
         assert.deepEqual emptyBlueprint.description,  null
         assert.deepEqual emptyBlueprint.interactions, []
