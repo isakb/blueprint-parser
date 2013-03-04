@@ -3,7 +3,7 @@ parser     = require "../lib/katt-blueprint-parser"
 
 
 Blueprint            = parser.ast.Blueprint
-Interaction          = parser.ast.Interaction
+Operation            = parser.ast.Operation
 Request              = parser.ast.Request
 Response             = parser.ast.Response
 
@@ -18,20 +18,20 @@ filledResponse = new Response
   headers: { "Content-Type": "application/json" }
   body:    "{ \"id\": 1 }"
 
-filledInteractions = [
-  new Interaction
+filledOperations = [
+  new Operation
     description: "Post to resource 1"
     method:      "POST"
     url:         "/post-1"
     request:     filledRequest
     response:    filledResponse
-  new Interaction
+  new Operation
     description: "Post to resource 2"
     method:      "POST"
     url:         "/post-2"
     request:     filledRequest
     response:    filledResponse
-  new Interaction
+  new Operation
     description: "Post to resource 3"
     method:      "POST"
     url:         "/post-3"
@@ -42,7 +42,7 @@ filledInteractions = [
 filledBlueprint = new Blueprint
   name:        "API"
   description: "Test API"
-  interactions: filledInteractions
+  operations:  filledOperations
 
 # JSONs
 
@@ -56,7 +56,7 @@ filledResponseJson =
     body:    "{ \"id\": 1 }"
 
 
-filledInteractionJsons = [
+filledOperationJsons = [
   {
     description: "Post to resource 1"
     method:      "POST"
@@ -83,7 +83,7 @@ filledInteractionJsons = [
 filledBlueprintJson =
   name:         "API"
   description:  "Test API"
-  interactions: filledInteractionJsons
+  operations: filledOperationJsons
 
 # Blueprints
 
@@ -99,7 +99,7 @@ filledResponseBlueprint = """
 """
 
 
-filledInteractionBlueprints = [
+filledOperationBlueprints = [
   """
     Post to resource 1
     POST /post-1
@@ -127,11 +127,11 @@ filledBlueprintBlueprint = """
   Test API
   ---
 
-  #{filledInteractionBlueprints[0]}
+  #{filledOperationBlueprints[0]}
 
-  #{filledInteractionBlueprints[1]}
+  #{filledOperationBlueprints[1]}
 
-  #{filledInteractionBlueprints[2]}
+  #{filledOperationBlueprints[2]}
 """
 
 bodyTestcases = [
@@ -181,15 +181,15 @@ describe "Blueprint", ->
       it "initializes properties correctly", ->
         blueprint = filledBlueprint
 
-        assert.deepEqual blueprint.name,          "API"
-        assert.deepEqual blueprint.description,   "Test API"
-        assert.deepEqual blueprint.interactions,  filledInteractions
+        assert.deepEqual blueprint.name,        "API"
+        assert.deepEqual blueprint.description, "Test API"
+        assert.deepEqual blueprint.operations,  filledOperations
 
     describe "when not passed property values", ->
       it "uses correct defaults", ->
-        assert.deepEqual emptyBlueprint.name,         null
-        assert.deepEqual emptyBlueprint.description,  null
-        assert.deepEqual emptyBlueprint.interactions, []
+        assert.deepEqual emptyBlueprint.name,        null
+        assert.deepEqual emptyBlueprint.description, null
+        assert.deepEqual emptyBlueprint.operations,  []
 
   describe "#toJSON", ->
     describe "on a filled-in blueprint", ->
@@ -205,45 +205,45 @@ describe "Blueprint", ->
       it "returns a correct blueprint", ->
         assert.deepEqual filledBlueprint.toBlueprint(), filledBlueprintBlueprint
 
-describe "Interaction", ->
-  emptyInteraction = new Interaction
+describe "Operation", ->
+  emptyOperation = new Operation
 
   describe ".fromJSON", ->
-    it "creates a new interaction from a JSON-serializable object", ->
-      assert.deepEqual Interaction.fromJSON(filledInteractionJsons[0]), filledInteractions[0]
+    it "creates a new operation from a JSON-serializable object", ->
+      assert.deepEqual Operation.fromJSON(filledOperationJsons[0]), filledOperations[0]
 
   describe "#constructor", ->
     describe "when passed property values", ->
       it "initializes properties correctly", ->
-        interaction = filledInteractions[0]
+        operation = filledOperations[0]
 
-        assert.deepEqual interaction.description, "Post to resource 1"
-        assert.deepEqual interaction.method,      "POST"
-        assert.deepEqual interaction.url,         "/post-1"
-        assert.deepEqual interaction.request,     filledRequest
-        assert.deepEqual interaction.response,    filledResponse
+        assert.deepEqual operation.description, "Post to resource 1"
+        assert.deepEqual operation.method,      "POST"
+        assert.deepEqual operation.url,         "/post-1"
+        assert.deepEqual operation.request,     filledRequest
+        assert.deepEqual operation.response,    filledResponse
 
     describe "when not passed property values", ->
       it "uses correct defaults", ->
-        assert.deepEqual emptyInteraction.description, null
-        assert.deepEqual emptyInteraction.method,      "GET"
-        assert.deepEqual emptyInteraction.url,         "/"
-        assert.deepEqual emptyInteraction.request,     new Request
-        assert.deepEqual emptyInteraction.response,    new Response
+        assert.deepEqual emptyOperation.description, null
+        assert.deepEqual emptyOperation.method,      "GET"
+        assert.deepEqual emptyOperation.url,         "/"
+        assert.deepEqual emptyOperation.request,     new Request
+        assert.deepEqual emptyOperation.response,    new Response
 
   describe "#toJSON", ->
-    describe "on a filled-in interaction", ->
+    describe "on a filled-in operation", ->
       it "returns a correct JSON-serializable object", ->
-        assert.deepEqual filledInteractions[0].toJSON(), filledInteractionJsons[0]
+        assert.deepEqual filledOperations[0].toJSON(), filledOperationJsons[0]
 
   describe "#toBlueprint", ->
-    describe "on an empty interaction", ->
+    describe "on an empty operation", ->
       it "returns a correct blueprint", ->
-        assert.deepEqual emptyInteraction.toBlueprint(), "GET /\n< 200"
+        assert.deepEqual emptyOperation.toBlueprint(), "GET /\n< 200"
 
-    describe "on a filled-in interaction", ->
+    describe "on a filled-in operation", ->
       it "returns a correct blueprint", ->
-        assert.deepEqual filledInteractions[0].toBlueprint(), filledInteractionBlueprints[0]
+        assert.deepEqual filledOperations[0].toBlueprint(), filledOperationBlueprints[0]
 
 describe "Request", ->
   emptyRequest = new Request

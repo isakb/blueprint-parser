@@ -28,34 +28,34 @@ class Blueprint
     new this
       name:         json.name
       description:  json.description
-      interactions: Interaction.fromJSON(s) for s in json.interactions
+      operations:   Operation.fromJSON(s) for s in json.operations
 
   constructor: (props = {}) ->
     fillProps this, props,
       name:         null
       description:  null
-      interactions: []
+      operations:   []
 
-  interactions: (opts) ->
-    for i in s.interactions
+  operations: (opts) ->
+    for i in s.operations
       if opts?.method and opts.method isnt i.method then continue
       if opts?.url and opts.url isnt i.url then continue
       i
 
   toJSON: ->
-    name:         @name
-    description:  @description
-    interactions: i.toJSON() for i in @interactions
+    name:        @name
+    description: @description
+    operations:  i.toJSON() for i in @operations
 
   toBlueprint: ->
     combineParts "\n\n", (parts) =>
       parts.push "--- #{@name} ---"          if @name
       parts.push "---\n#{@description}\n---" if @description
 
-      parts.push s.toBlueprint() for s in @interactions
+      parts.push o.toBlueprint() for o in @operations
 
-# Represents an interaction of a KATT API blueprint scenario.
-class Interaction
+# Represents an operation of a KATT API blueprint scenario.
+class Operation
   @fromJSON: (json) ->
     new this
       description: json.description
@@ -92,7 +92,7 @@ class Interaction
       responseBlueprint =  @response.toBlueprint()
       parts.push responseBlueprint if responseBlueprint isnt ""
 
-# Represents a request of an interaction.
+# Represents a request of an operation.
 class Request
   @fromJSON: (json) ->
     new this
@@ -113,7 +113,7 @@ class Request
       parts.push "> #{name}: #{value}" for name, value of @headers
       parts.push escapeBody(@body) if @body
 
-# Represents a response of an interaction.
+# Represents a response of an operation.
 class Response
   @fromJSON: (json) ->
     new this
@@ -140,6 +140,6 @@ class Response
 
 module.exports =
   Blueprint:            Blueprint
-  Interaction:          Interaction
+  Operation:            Operation
   Request:              Request
   Response:             Response

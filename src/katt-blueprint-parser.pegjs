@@ -40,7 +40,7 @@
    * We must save these because |this| doesn't refer to the parser in actions.
    */
   var Blueprint            = this.ast.Blueprint,
-      Interaction          = this.ast.Interaction,
+      Operation            = this.ast.Operation,
       Request              = this.ast.Request,
       Response             = this.ast.Response;
 
@@ -55,13 +55,13 @@ API
     EmptyLine*
     description:APIDescription?
     EmptyLine*
-    interactions:Interactions
+    operations:operations
     EmptyLine*
     {
       return new Blueprint({
         name:         nullIfEmpty(name),
         description:  nullIfEmpty(description),
-        interactions: interactions
+        operations:   operations
       });
     }
 
@@ -78,15 +78,15 @@ APIDescription
 APIDescriptionLine
   = !("---" S* EOLF) text:Text0 EOL { return text; }
 
-Interactions
-  = head:Interaction?
-    tail:(EmptyLine* interaction:Interaction { return interaction; })*
+operations
+  = head:Operation?
+    tail:(EmptyLine* operation:Operation { return operation; })*
     {
       return combineHeadTail(head, tail);
     }
 
-Interaction
-  = description:InteractionDescription?
+Operation
+  = description:OperationDescription?
     signature:Signature
     request:Request
     response:Response
@@ -95,7 +95,7 @@ Interaction
         ? "/" + urlPrefix.replace(/\/$/, "") + "/" + signature.url.replace(/^\//, "")
         : signature.url;
 
-      return new Interaction({
+      return new Operation({
         description: nullIfEmpty(description),
         method:      signature.method,
         url:         url,
@@ -104,10 +104,10 @@ Interaction
       });
     }
 
-InteractionDescription "interaction description"
-  = lines:InteractionDescriptionLine+ { return lines.join("\n"); }
+OperationDescription "operation description"
+  = lines:OperationDescriptionLine+ { return lines.join("\n"); }
 
-InteractionDescriptionLine
+OperationDescriptionLine
   = !HttpMethod text:Text0 EOL { return text; }
 
 /* Assembled from RFC 2616, 5323, 5789. */
