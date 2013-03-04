@@ -8,6 +8,7 @@
     "email": "team@apiary.io",
     "url":   "http://apiary.io/"
   },
+  "main":            "lib/katt-blueprint-parser",
   "files":           [
     "CHANGELOG",
     "LICENSE",
@@ -17,9 +18,8 @@
     "lib/katt-blueprint-parser.js",
     "lib/ast.js"
   ],
-  "main":            "lib/katt-blueprint-parser",
   "scripts": {
-    "pretest": "make",
+    "prepublish": "npm test",
     "test": "make test"
   },
   "devDependencies": {
