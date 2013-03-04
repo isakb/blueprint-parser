@@ -43,9 +43,9 @@ $(PARSER_OUT_FILE): $(LIB_DIR) $(PARSER_SRC_FILE) $(AST_OUT_FILE)
 # Build the library
 build: $(PARSER_OUT_FILE)
 
-# Run the test suite
+# Run the test 
 test: build
-	$(MOCHA) --compilers coffee:coffee-script
+	$(MOCHA)
 
 .PHONY: build test
 .SILENT: build test $(LIB_DIR) $(DIST_DIR) $(AST_OUT_FILE) $(PARSER_OUT_FILE)
