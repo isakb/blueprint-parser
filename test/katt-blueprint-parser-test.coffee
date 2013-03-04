@@ -3,7 +3,7 @@ path   = require "path"
 parser = require "../lib/katt-blueprint-parser"
 chai   = require "chai"
 
-DEMO_FILE = path.resolve(path.join(__dirname, "..", "examples", "example.apib"))
+EXAMPLE_FILE = path.resolve(path.join(__dirname, "..", "examples", "example.apib"))
 
 chai.use (chai, util) ->
   chai.assert.parse = (input, result) ->
@@ -1182,9 +1182,9 @@ describe "KATT API blueprint parser", ->
 
   # ===== Complex Examples =====
 
-  it "parses demo blueprint", ->
-    demoBlueprint = fs.readFileSync(DEMO_FILE).toString()
-    assert.parse demoBlueprint, new Blueprint
+  it "parses example blueprint", ->
+    exampleBlueprint = fs.readFileSync(EXAMPLE_FILE).toString()
+    assert.parse exampleBlueprint, new Blueprint
       name:        "Sample API v2"
       description: "Welcome to the our sample API documentation. All comments can be written in (support [Markdown](http://daringfireball.net/projects/markdown/syntax) syntax)"
       operations:  [
@@ -1223,3 +1223,7 @@ describe "KATT API blueprint parser", ->
               status: 200
               body:   "{ \"receipt\": \"/payment/receipt/1\" }"
       ]
+
+  it "returns a parsed blueprint #toBlueprint() as the original blueprint", ->
+    exampleBlueprint = fs.readFileSync(EXAMPLE_FILE).toString()
+    chai.expect(parser.parse(exampleBlueprint).toBlueprint() + '\n').to.equal(exampleBlueprint)

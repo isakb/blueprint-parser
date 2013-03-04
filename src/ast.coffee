@@ -36,16 +36,10 @@ class Blueprint
       description:  null
       operations:   []
 
-  operations: (opts) ->
-    for i in s.operations
-      if opts?.method and opts.method isnt i.method then continue
-      if opts?.url and opts.url isnt i.url then continue
-      i
-
   toJSON: ->
     name:        @name
     description: @description
-    operations:  i.toJSON() for i in @operations
+    operations:  o.toJSON() for o in @operations
 
   toBlueprint: ->
     combineParts "\n\n", (parts) =>
