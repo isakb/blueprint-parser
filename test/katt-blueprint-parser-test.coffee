@@ -11,7 +11,7 @@ chai.use (chai, util) ->
 
     assertion.assert(
       util.eql(parser.parse(input), result)
-      "expected \#{act} to parse as \#{exp})"
+      "expected \#{act} to parse as \#{exp}"
       "expected \#{act} not to parse as \#{exp}"
       result
       input

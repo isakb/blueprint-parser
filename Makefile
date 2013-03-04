@@ -43,7 +43,7 @@ $(PARSER_OUT_FILE): $(LIB_DIR) $(PARSER_SRC_FILE) $(AST_OUT_FILE)
 # Build the library
 build: $(PARSER_OUT_FILE)
 
-# Run the test 
+# Run the test suite
 test: build
 	$(MOCHA)
 
