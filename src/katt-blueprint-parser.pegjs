@@ -40,7 +40,6 @@
    * We must save these because |this| doesn't refer to the parser in actions.
    */
   var Blueprint            = this.ast.Blueprint,
-      Section              = this.ast.Section,
       Interaction          = this.ast.Interaction,
       Request              = this.ast.Request,
       Response             = this.ast.Response;
@@ -60,23 +59,12 @@ API
     EmptyLine*
     interactions:Interactions
     EmptyLine*
-    sections:Sections
-    EmptyLine*
     {
-      /* Wrap free-standing interactions into an anonymnous section. */
-      if (interactions.length > 0) {
-        sections.unshift(new Section({
-          name:         null,
-          description:  null,
-          interactions: interactions
-        }));
-      }
-
       return new Blueprint({
-        location:    nullIfEmpty(location),
-        name:        nullIfEmpty(name),
-        description: nullIfEmpty(description),
-        sections:    sections
+        location:     nullIfEmpty(location),
+        name:         nullIfEmpty(name),
+        description:  nullIfEmpty(description),
+        interactions: interactions
       });
     }
 
@@ -105,45 +93,6 @@ APIDescription
 APIDescriptionLine
   = !("---" S* EOLF) text:Text0 EOL { return text; }
 
-Sections
-  = head:Section?
-    tail:(EmptyLine* section:Section { return section; })*
-    {
-      return combineHeadTail(head, tail);
-    }
-
-Section
-  = header:SectionHeader EmptyLine* interactions:Interactions {
-      return new Section({
-        name:         nullIfEmpty(header.name),
-        description:  nullIfEmpty(header.description),
-        interactions: interactions
-      });
-    }
-
-SectionHeader
-  = SectionHeaderLong
-  / SectionHeaderShort
-
-SectionHeaderShort
-  = "--" S+ name:Text1 EOLF {
-      return {
-        name:        name.replace(/\s+--$/, ""),
-        description: ""
-      };
-    }
-
-SectionHeaderLong
-  = "--" S* EOL lines:SectionHeaderLongLine* "--" S* EOLF {
-    return {
-      name:        lines.length > 0 ? lines[0] : "",
-      description: lines.slice(1).join("\n")
-    };
-  }
-
-SectionHeaderLongLine
-  = !("--" S* EOLF) text:Text0 EOL { return text; }
-
 Interactions
   = head:Interaction?
     tail:(EmptyLine* interaction:Interaction { return interaction; })*
@@ -152,15 +101,10 @@ Interactions
     }
 
 Interaction
-  /*
-   * Initial !Section needed so that parsing of sectionless interactions (which
-   * are placed before interactions in sections) terminates correctly.
-   */
-  = !Section
-    description:InteractionDescription?
+  = description:InteractionDescription?
     signature:Signature
     request:Request
-    responses:Responses
+    response:Response
     {
       var url = urlPrefix !== ""
         ? "/" + urlPrefix.replace(/\/$/, "") + "/" + signature.url.replace(/^\//, "")
@@ -171,7 +115,7 @@ Interaction
         method:      signature.method,
         url:         url,
         request:     request,
-        responses:   responses
+        response:    response
       });
     }
 
@@ -211,13 +155,6 @@ RequestHeaders
 RequestHeader
   = In header:HttpHeader { return header; }
 
-Responses
-  = head:Response
-    tail:(ResponseSeparator response:Response { return response; })*
-    {
-      return combineHeadTail(head, tail);
-    }
-
 Response
   = status:ResponseStatus headers:ResponseHeaders body:Body? {
       return new Response({
@@ -235,9 +172,6 @@ ResponseHeaders
 
 ResponseHeader
   = Out header:HttpHeader { return header; }
-
-ResponseSeparator
-  = "+++++" S* EOL
 
 HttpStatus "HTTP status code"
   = digits:[0-9]+ { return parseInt(digits.join(""), 10); }
@@ -304,7 +238,7 @@ SimpleBody
   = !"<<<" lines:SimpleBodyLine+ { return lines.join("\n"); }
 
 SimpleBodyLine
-  = !In !Out !ResponseSeparator !EmptyLine text:Text1 EOLF { return text; }
+  = !In !Out !EmptyLine text:Text1 EOLF { return text; }
 
 In
   = ">" S+

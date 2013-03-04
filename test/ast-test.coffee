@@ -3,7 +3,6 @@ parser     = require "../lib/katt-blueprint-parser"
 
 
 Blueprint            = parser.ast.Blueprint
-Section              = parser.ast.Section
 Interaction          = parser.ast.Interaction
 Request              = parser.ast.Request
 Response             = parser.ast.Response
@@ -40,26 +39,11 @@ filledInteractions = [
     response:    filledResponse
 ]
 
-filledSections = [
-  new Section
-    name:         "Section 1"
-    description:  "Test section 1"
-    interactions: filledInteractions
-  new Section
-    name:         "Section 2"
-    description:  "Test section 2"
-    interactions: filledInteractions
-  new Section
-    name:         "Section 3"
-    description:  "Test section 3"
-    interactions: filledInteractions
-]
-
 filledBlueprint = new Blueprint
   location:    "http://example.com/"
   name:        "API"
   description: "Test API"
-  sections:    filledSections
+  interactions: filledInteractions
 
 # JSONs
 
@@ -97,29 +81,11 @@ filledInteractionJsons = [
   }
 ]
 
-filledSectionJsons = [
-  {
-    name:         "Section 1"
-    description:  "Test section 1"
-    interactions: filledInteractionJsons
-  }
-  {
-    name:         "Section 2"
-    description:  "Test section 2"
-    interactions: filledInteractionJsons
-  }
-  {
-    name:         "Section 3"
-    description:  "Test section 3"
-    interactions: filledInteractionJsons
-  }
-]
-
 filledBlueprintJson =
-  location:    "http://example.com/"
-  name:        "API"
-  description: "Test API"
-  sections:    filledSectionJsons
+  location:     "http://example.com/"
+  name:         "API"
+  description:  "Test API"
+  interactions: filledInteractionJsons
 
 # Blueprints
 
@@ -156,45 +122,6 @@ filledInteractionBlueprints = [
   """
 ]
 
-filledSectionBlueprints = [
-  """
-    --
-    Section 1
-    Test section 1
-    --
-
-    #{filledInteractionBlueprints[0]}
-
-    #{filledInteractionBlueprints[1]}
-
-    #{filledInteractionBlueprints[2]}
-  """
-  """
-    --
-    Section 2
-    Test section 2
-    --
-
-    #{filledInteractionBlueprints[0]}
-
-    #{filledInteractionBlueprints[1]}
-
-    #{filledInteractionBlueprints[2]}
-  """
-  """
-    --
-    Section 3
-    Test section 3
-    --
-
-    #{filledInteractionBlueprints[0]}
-
-    #{filledInteractionBlueprints[1]}
-
-    #{filledInteractionBlueprints[2]}
-  """
-]
-
 filledBlueprintBlueprint = """
   HOST: http://example.com/
 
@@ -204,11 +131,11 @@ filledBlueprintBlueprint = """
   Test API
   ---
 
-  #{filledSectionBlueprints[0]}
+  #{filledInteractionBlueprints[0]}
 
-  #{filledSectionBlueprints[1]}
+  #{filledInteractionBlueprints[1]}
 
-  #{filledSectionBlueprints[2]}
+  #{filledInteractionBlueprints[2]}
 """
 
 bodyTestcases = [
@@ -258,17 +185,17 @@ describe "Blueprint", ->
       it "initializes properties correctly", ->
         blueprint = filledBlueprint
 
-        assert.deepEqual blueprint.location,    "http://example.com/"
-        assert.deepEqual blueprint.name,        "API"
-        assert.deepEqual blueprint.description, "Test API"
-        assert.deepEqual blueprint.sections,    filledSections
+        assert.deepEqual blueprint.location,      "http://example.com/"
+        assert.deepEqual blueprint.name,          "API"
+        assert.deepEqual blueprint.description,   "Test API"
+        assert.deepEqual blueprint.interactions,  filledInteractions
 
     describe "when not passed property values", ->
       it "uses correct defaults", ->
-        assert.deepEqual emptyBlueprint.location,    null
-        assert.deepEqual emptyBlueprint.name,        null
-        assert.deepEqual emptyBlueprint.description, null
-        assert.deepEqual emptyBlueprint.sections,    []
+        assert.deepEqual emptyBlueprint.location,     null
+        assert.deepEqual emptyBlueprint.name,         null
+        assert.deepEqual emptyBlueprint.description,  null
+        assert.deepEqual emptyBlueprint.interactions, []
 
   describe "#toJSON", ->
     describe "on a filled-in blueprint", ->
@@ -283,54 +210,6 @@ describe "Blueprint", ->
     describe "on a filled-in blueprint", ->
       it "returns a correct blueprint", ->
         assert.deepEqual filledBlueprint.toBlueprint(), filledBlueprintBlueprint
-
-describe "Section", ->
-  emptySection = new Section
-
-  describe ".fromJSON", ->
-    it "creates a new section from a JSON-serializable object", ->
-      assert.deepEqual Section.fromJSON(filledSectionJsons[0]), filledSections[0]
-
-  describe "#constructor", ->
-    describe "when passed property values", ->
-      it "initializes properties correctly", ->
-        section = filledSections[0]
-
-        assert.deepEqual section.name,          "Section 1"
-        assert.deepEqual section.description,   "Test section 1"
-        assert.deepEqual section.interactions,  filledInteractions
-
-    describe "when not passed property values", ->
-      it "uses correct defaults", ->
-        assert.deepEqual emptySection.name,         null
-        assert.deepEqual emptySection.description,  null
-        assert.deepEqual emptySection.interactions, []
-
-  describe "#toJSON", ->
-    describe "on a filled-in section", ->
-      it "returns a correct JSON-serializable object", ->
-        assert.deepEqual filledSections[0].toJSON(), filledSectionJsons[0]
-
-  describe "#toBlueprint", ->
-    describe "on an empty section", ->
-      it "returns a correct blueprint", ->
-        assert.deepEqual emptySection.toBlueprint(), ""
-
-    describe "on a section with a name but with no description", ->
-      it "returns a correct blueprint", ->
-        section = new Section name: "Section 1"
-
-        assert.deepEqual section.toBlueprint(), "-- Section 1 --"
-
-    describe "on a section with no name but with a description", ->
-      it "returns a correct blueprint", ->
-        section = new Section description: "Test section 1"
-
-        assert.deepEqual section.toBlueprint(), ""
-
-    describe "on a filled-in section", ->
-      it "returns a correct blueprint", ->
-        assert.deepEqual filledSections[0].toBlueprint(), filledSectionBlueprints[0]
 
 describe "Interaction", ->
   emptyInteraction = new Interaction

@@ -26,31 +26,29 @@ escapeBody = (body) ->
 class Blueprint
   @fromJSON: (json) ->
     new this
-      location:    json.location
-      name:        json.name
-      description: json.description
-      sections:    Section.fromJSON(s) for s in json.sections
+      location:     json.location
+      name:         json.name
+      description:  json.description
+      interactions: Interaction.fromJSON(s) for s in json.interactions
 
   constructor: (props = {}) ->
     fillProps this, props,
-      location:    null
-      name:        null
-      description: null
-      sections:    []
+      location:     null
+      name:         null
+      description:  null
+      interactions: []
 
   interactions: (opts) ->
-    interactions = []
-    for s in @sections then for r in s.interactions
-      if opts?.method and opts.method isnt r.method then continue
-      if opts?.url and opts.url isnt r.url then continue
-      interactions.push r
-    return interactions
+    for i in s.interactions
+      if opts?.method and opts.method isnt i.method then continue
+      if opts?.url and opts.url isnt i.url then continue
+      i
 
   toJSON: ->
-    location:    @location
-    name:        @name
-    description: @description
-    sections:    s.toJSON() for s in @sections
+    location:     @location
+    name:         @name
+    description:  @description
+    interactions: i.toJSON() for i in @interactions
 
   toBlueprint: ->
     combineParts "\n\n", (parts) =>
@@ -58,36 +56,7 @@ class Blueprint
       parts.push "--- #{@name} ---"          if @name
       parts.push "---\n#{@description}\n---" if @description
 
-      parts.push s.toBlueprint() for s in @sections
-
-# Represents a section of a KATT API blueprint.
-class Section
-  @fromJSON: (json) ->
-    new this
-      name:        json.name
-      description: json.description
-      interactions:   Interaction.fromJSON(r) for r in json.interactions
-
-  constructor: (props = {}) ->
-    fillProps this, props,
-      name:        null
-      description: null
-      interactions:   []
-
-  toJSON: ->
-    name:         @name
-    description:  @description
-    interactions: r.toJSON() for r in @interactions
-
-  toBlueprint: ->
-    combineParts "\n\n", (parts) =>
-      if @name
-        if @description
-          parts.push "--\n#{@name}\n#{@description}\n--"
-        else
-          parts.push "-- #{@name} --"
-
-      parts.push r.toBlueprint() for r in @interactions
+      parts.push s.toBlueprint() for s in @interactions
 
 # Represents an interaction of a KATT API blueprint scenario.
 class Interaction
@@ -175,7 +144,6 @@ class Response
 
 module.exports =
   Blueprint:            Blueprint
-  Section:              Section
   Interaction:          Interaction
   Request:              Request
   Response:             Response

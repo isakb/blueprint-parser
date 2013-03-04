@@ -1,6 +1,9 @@
+fs     = require "fs"
+path   = require "path"
 parser = require "../lib/katt-blueprint-parser"
 chai   = require "chai"
 
+DEMO_FILE = path.resolve(path.join(__dirname, "..", "examples", "example.apib"))
 
 chai.use (chai, util) ->
   chai.assert.parse = (input, result) ->
@@ -34,24 +37,23 @@ chai.use (chai, util) ->
 assert = chai.assert
 
 Blueprint            = parser.ast.Blueprint
-Section              = parser.ast.Section
 Interaction          = parser.ast.Interaction
 Request              = parser.ast.Request
 Response             = parser.ast.Response
 
-sectionBlueprint = (props = {}) ->
+scenarioBlueprint = (props = {}) ->
   new Blueprint
     name:     "API"
-    sections: [new Section(props)]
+    interactions: props.interactions
 
 interactionBlueprint = (props = {}) ->
-  sectionBlueprint interactions: [new Interaction(props)]
+  scenarioBlueprint interactions: [new Interaction(props)]
 
 requestBlueprint = (props = {}) ->
   interactionBlueprint request: new Request(props)
 
 responseBlueprint = (props = {}) ->
-  interactionBlueprint responses: [new Response(props)]
+  interactionBlueprint response: new Response(props)
 
 describe "KATT API blueprint parser", ->
   # ===== Rule Tests =====
@@ -65,15 +67,10 @@ describe "KATT API blueprint parser", ->
       location:    "http://example.com/"
       name:        "API"
       description: "Test API"
-      sections:    [
-        new Section interactions: [
-          new Interaction url: "/one"
-          new Interaction url: "/two"
-          new Interaction url: "/three"
-        ]
-        new Section name: "Section 1"
-        new Section name: "Section 2"
-        new Section name: "Section 3"
+      interactions: [
+        new Interaction url: "/one"
+        new Interaction url: "/two"
+        new Interaction url: "/three"
       ]
 
     assert.parse """
@@ -90,10 +87,6 @@ describe "KATT API blueprint parser", ->
 
       GET /three
       < 200
-
-      -- Section 1 --
-      -- Section 2 --
-      -- Section 3 --
     """, blueprint
 
     assert.parse """
@@ -114,10 +107,6 @@ describe "KATT API blueprint parser", ->
 
       GET /three
       < 200
-
-      -- Section 1 --
-      -- Section 2 --
-      -- Section 3 --
     """, blueprint
 
     assert.parse """
@@ -148,10 +137,6 @@ describe "KATT API blueprint parser", ->
       < 200
 
 
-
-      -- Section 1 --
-      -- Section 2 --
-      -- Section 3 --
 
     """, blueprint
 
@@ -260,247 +245,6 @@ describe "KATT API blueprint parser", ->
       ---
     """
 
-  # Canonical Sections is:
-  #
-  #   -- Section 1 --
-  #   -- Section 2 --
-  #   -- Section 3 --
-  #
-  it "parses Sections", ->
-    blueprint0 = new Blueprint
-      name: "API"
-      sections: []
-
-    blueprint1 = new Blueprint
-      name:     "API"
-      sections: [new Section name: "Section 1"]
-
-    blueprint3 = new Blueprint
-      name:     "API"
-      sections: [
-        new Section name: "Section 1"
-        new Section name: "Section 2"
-        new Section name: "Section 3"
-      ]
-
-    assert.parse """
-      --- API ---
-
-    """, blueprint0
-
-    assert.parse """
-      --- API ---
-
-      -- Section 1 --
-    """, blueprint1
-
-    assert.parse """
-      --- API ---
-
-      -- Section 1 --
-      -- Section 2 --
-      -- Section 3 --
-    """, blueprint3
-
-    assert.parse """
-      --- API ---
-
-      -- Section 1 --
-
-      -- Section 2 --
-
-      -- Section 3 --
-    """, blueprint3
-
-    assert.parse """
-      --- API ---
-
-      -- Section 1 --
-
-
-
-      -- Section 2 --
-
-
-
-      -- Section 3 --
-    """, blueprint3
-
-  # Canonical Section is "-- Section --".
-  it "parses Section", ->
-    blueprint = sectionBlueprint
-      name:      "Section"
-      interactions: [
-        new Interaction url: "/one"
-        new Interaction url: "/two"
-        new Interaction url: "/three"
-      ]
-
-    assert.parse """
-      --- API ---
-
-      -- Section --
-      GET /one
-      < 200
-
-      GET /two
-      < 200
-
-      GET /three
-      < 200
-    """, blueprint
-
-    assert.parse """
-      --- API ---
-
-      -- Section --
-
-      GET /one
-      < 200
-
-      GET /two
-      < 200
-
-      GET /three
-      < 200
-    """, blueprint
-
-    assert.parse """
-      --- API ---
-
-      -- Section --
-
-
-
-      GET /one
-      < 200
-
-      GET /two
-      < 200
-
-      GET /three
-      < 200
-    """, blueprint
-
-  # Canonical SectionHeader is "-- Section --".
-  it "parses SectionHeader", ->
-    assert.parse """
-      --- API ---
-
-      -- Section --
-    """, sectionBlueprint name: "Section"
-
-    assert.parse """
-      --- API ---
-
-      --\nSection\n--
-    """, sectionBlueprint name: "Section"
-
-  # Canonical SectionHeaderShort is "-- Section --".
-  it "parses SectionHeaderShort", ->
-    assert.parse """
-      --- API ---
-
-      -- abcd
-    """, sectionBlueprint name: "abcd"
-
-    assert.parse """
-      --- API ---
-
-      --   abcd
-    """, sectionBlueprint name: "abcd"
-
-    assert.parse """
-      --- API ---
-
-      -- abcd --
-    """, sectionBlueprint name: "abcd"
-
-    assert.parse """
-      --- API ---
-
-      -- abcd   --
-    """, sectionBlueprint name: "abcd"
-
-  # Canonical SectionHeaderLong is:
-  #
-  #   ---
-  #   Test API
-  #   ---
-  #
-  it "parses SectionHeaderLong", ->
-    assert.parse """
-      --- API ---
-
-      --
-      --
-    """, sectionBlueprint name: null, description: null
-
-    assert.parse """
-      --- API ---
-
-      --
-      --
-    """, sectionBlueprint name: null, description: null
-
-    assert.parse """
-      --- API ---
-
-      --
-      --
-    """, sectionBlueprint name: null, description: null
-
-    assert.parse """
-      --- API ---
-
-      --
-      abcd
-      --
-    """, sectionBlueprint name: "abcd", description: null
-
-    assert.parse """
-
-      --- API ---
-
-      --
-      abcd
-      efgh
-      ijkl
-      --
-    """, sectionBlueprint name: "abcd", description: "efgh\nijkl"
-
-    assert.parse """
-      --- API ---
-
-      --
-      --
-    """, sectionBlueprint name: null, description: null
-
-    assert.parse """
-      --- API ---
-
-      --
-      --
-    """, sectionBlueprint name: null, description: null
-
-  # Canonical SectionHeaderLongLine is "abcd".
-  it "parses SectionHeaderLongLine", ->
-    assert.parse """
-      --- API ---
-
-      --
-      abcd
-      --
-    """, sectionBlueprint name: "abcd"
-
-    assert.notParse """
-      --- API ---
-
-      --
-      --
-      --
-    """
-
   # Canonical Interactions is:
   #
   #   GET /one
@@ -513,10 +257,10 @@ describe "KATT API blueprint parser", ->
     blueprint0 = new Blueprint
       name: "API"
 
-    blueprint1 = sectionBlueprint
+    blueprint1 = scenarioBlueprint
       interactions: [new Interaction url: "/one"]
 
-    blueprint3 = sectionBlueprint
+    blueprint3 = scenarioBlueprint
       interactions: [
         new Interaction url: "/one"
         new Interaction url: "/two"
@@ -575,17 +319,9 @@ describe "KATT API blueprint parser", ->
       headers: { "Content-Type": "application/json" }
       body:    "{ \"status\": \"ok\" }"
 
-    responses = [
-      new Response
-        headers: { "Content-Type": "application/json" }
-        body:    "{ \"id\": 1 }"
-      new Response
-        headers: { "Content-Type": "application/json" }
-        body:    "{ \"id\": 2 }"
-      new Response
-        headers: { "Content-Type": "application/json" }
-        body:    "{ \"id\": 3 }"
-    ]
+    response = new Response
+      headers: { "Content-Type": "application/json" }
+      body:    "{ \"id\": 1 }"
 
     assert.parse """
       --- API ---
@@ -596,15 +332,7 @@ describe "KATT API blueprint parser", ->
       < 200
       < Content-Type: application/json
       { "id": 1 }
-      +++++
-      < 200
-      < Content-Type: application/json
-      { "id": 2 }
-      +++++
-      < 200
-      < Content-Type: application/json
-      { "id": 3 }
-    """, interactionBlueprint request: request, responses: responses
+    """, interactionBlueprint request: request, response: response
 
     assert.parse """
       --- API ---
@@ -616,18 +344,10 @@ describe "KATT API blueprint parser", ->
       < 200
       < Content-Type: application/json
       { "id": 1 }
-      +++++
-      < 200
-      < Content-Type: application/json
-      { "id": 2 }
-      +++++
-      < 200
-      < Content-Type: application/json
-      { "id": 3 }
     """, interactionBlueprint
       description: "Root resource",
       request:     request,
-      responses:   responses
+      response:    response
 
     assert.parse """
       HOST: http://example.com
@@ -645,12 +365,10 @@ describe "KATT API blueprint parser", ->
     """, new Blueprint
       location:    "http://example.com"
       name:        "API"
-      sections:    [
-        new Section interactions: [
-          new Interaction url: "url"
-          new Interaction url: "/"
-          new Interaction url: "/url"
-        ]
+      interactions: [
+        new Interaction url: "url"
+        new Interaction url: "/"
+        new Interaction url: "/url"
       ]
 
     assert.parse """
@@ -669,12 +387,10 @@ describe "KATT API blueprint parser", ->
     """, new Blueprint
       location:    "http://example.com/"
       name:        "API"
-      sections:    [
-        new Section interactions: [
-          new Interaction url: "url"
-          new Interaction url: "/"
-          new Interaction url: "/url"
-        ]
+      interactions: [
+        new Interaction url: "url"
+        new Interaction url: "/"
+        new Interaction url: "/url"
       ]
 
     assert.parse """
@@ -693,12 +409,10 @@ describe "KATT API blueprint parser", ->
     """, new Blueprint
       location:    "http://example.com/path"
       name:        "API"
-      sections:    [
-        new Section interactions: [
-          new Interaction url: "/path/url"
-          new Interaction url: "/path/"
-          new Interaction url: "/path/url"
-        ]
+      interactions: [
+        new Interaction url: "/path/url"
+        new Interaction url: "/path/"
+        new Interaction url: "/path/url"
       ]
 
     assert.parse """
@@ -717,12 +431,10 @@ describe "KATT API blueprint parser", ->
     """, new Blueprint
       location:    "http://example.com/path/"
       name:        "API"
-      sections:    [
-        new Section interactions: [
-          new Interaction url: "/path/url"
-          new Interaction url: "/path/"
-          new Interaction url: "/path/url"
-        ]
+      interactions:    [
+        new Interaction url: "/path/url"
+        new Interaction url: "/path/"
+        new Interaction url: "/path/url"
       ]
 
   # Canonical InteractionDescription is "Root resource".
@@ -925,32 +637,16 @@ describe "KATT API blueprint parser", ->
       < 200
     """, requestBlueprint headers: { "Content-Type": "application/json" }
 
-  # Canonical Responses is:
+  # Canonical Response is:
   #
   #   < 200
   #   < Content-Type: application/json
   #   { "id": 1 }
-  #   +++++
-  #   < 200
-  #   < Content-Type: application/json
-  #   { "id": 1 }
-  #   +++++
-  #   < 200
-  #   < Content-Type: application/json
-  #   { "id": 1 }
   #
-  it "parses Responses", ->
-    responses = [
-      new Response
-        headers: { "Content-Type": "application/json" }
-        body:    "{ \"id\": 1 }"
-      new Response
-        headers: { "Content-Type": "application/json" }
-        body:    "{ \"id\": 2 }"
-      new Response
-        headers: { "Content-Type": "application/json" }
-        body:    "{ \"id\": 3 }"
-    ]
+  it "parses Response", ->
+    response = new Response
+      headers: { "Content-Type": "application/json" }
+      body:    "{ \"id\": 1 }"
 
     assert.parse """
       --- API ---
@@ -959,7 +655,7 @@ describe "KATT API blueprint parser", ->
       < 200
       < Content-Type: application/json
       { "id": 1 }
-    """, interactionBlueprint responses: responses[0..0]
+    """, interactionBlueprint response: response
 
     assert.parse """
       --- API ---
@@ -968,11 +664,7 @@ describe "KATT API blueprint parser", ->
       < 200
       < Content-Type: application/json
       { "id": 1 }
-      +++++
-      < 200
-      < Content-Type: application/json
-      { "id": 2 }
-    """, interactionBlueprint responses: responses[0..1]
+    """, interactionBlueprint response: response
 
     assert.parse """
       --- API ---
@@ -981,15 +673,7 @@ describe "KATT API blueprint parser", ->
       < 200
       < Content-Type: application/json
       { "id": 1 }
-      +++++
-      < 200
-      < Content-Type: application/json
-      { "id": 2 }
-      +++++
-      < 200
-      < Content-Type: application/json
-      { "id": 3 }
-    """, interactionBlueprint responses: responses[0..2]
+    """, interactionBlueprint response: response
 
   # Canonical Response is:
   #
@@ -1005,12 +689,10 @@ describe "KATT API blueprint parser", ->
       < 200
       < Content-Type: application/json
     """, interactionBlueprint
-      responses: [
-        new Response
-          status:  200
-          headers: { "Content-Type": "application/json" }
-          body:    null
-      ]
+      response: new Response
+        status:  200
+        headers: { "Content-Type": "application/json" }
+        body:    null
 
     assert.parse """
       --- API ---
@@ -1020,12 +702,10 @@ describe "KATT API blueprint parser", ->
       < Content-Type: application/json
       { "status": "ok" }
     """, interactionBlueprint
-      responses: [
-        new Response
-          status:  200
-          headers: { "Content-Type": "application/json" }
-          body:    "{ \"status\": \"ok\" }"
-      ]
+      response: new Response
+        status:  200
+        headers: { "Content-Type": "application/json" }
+        body:    "{ \"status\": \"ok\" }"
 
   # Canonical ResponseStatus is "> 200".
   it "parses ResponseStatus", ->
@@ -1090,37 +770,6 @@ describe "KATT API blueprint parser", ->
       < 200
       < Content-Type: application/json
     """, responseBlueprint headers: { "Content-Type": "application/json" }
-
-  # Canonical ResponseSeparator is "+++++".
-  it "parses ResponseSeparator", ->
-    blueprint = interactionBlueprint responses: [new Response, new Response]
-
-    assert.parse """
-      --- API ---
-
-      GET /
-      < 200
-      +++++
-      < 200
-    """, blueprint
-
-    assert.parse """
-      --- API ---
-
-      GET /
-      < 200
-      +++++
-      < 200
-    """, blueprint
-
-    assert.parse """
-      --- API ---
-
-      GET /
-      < 200
-      +++++
-      < 200
-    """, blueprint
 
   # Canonical HttpStatus is "200".
   it "parses HttpStatus", ->
@@ -1573,93 +1222,44 @@ describe "KATT API blueprint parser", ->
   # ===== Complex Examples =====
 
   it "parses demo blueprint", ->
-    assert.parse """
-      HOST: http://www.google.com/
-
-      --- Sample API v2 ---
-      ---
-      Welcome to the our sample API documentation. All comments can be written in (support [Markdown](http://daringfireball.net/projects/markdown/syntax) syntax)
-      ---
-
-      --
-      Shopping Cart Interactions
-      The following is a section of interactions related to the shopping cart
-      --
-      List products added into your shopping-cart. (comment block again in Markdown)
-      GET /shopping-cart
-      < 200
-      < Content-Type: application/json
-      { "items": [
-        { "url": "/shopping-cart/1", "product":"2ZY48XPZ", "quantity": 1, "name": "New socks", "price": 1.25 }
-      ] }
-
-      Save new products in your shopping cart
-      POST /shopping-cart
-      > Content-Type: application/json
-      { "product":"1AB23ORM", "quantity": 2 }
-      < 201
-      < Content-Type: application/json
-      { "status": "created", "url": "/shopping-cart/2" }
-
-
-      -- Payment Interactions --
-      This resource allows you to submit payment information to process your *shopping cart* items
-      POST /payment
-      { "cc": "12345678900", "cvc": "123", "expiry": "0112" }
-      < 200
-      { "receipt": "/payment/receipt/1" }
-    """, new Blueprint
+    demoBlueprint = fs.readFileSync(DEMO_FILE).toString()
+    assert.parse demoBlueprint, new Blueprint
       location:    "http://www.google.com/"
       name:        "Sample API v2"
       description: "Welcome to the our sample API documentation. All comments can be written in (support [Markdown](http://daringfireball.net/projects/markdown/syntax) syntax)"
-      sections:    [
-        new Section
-          name:        "Shopping Cart Interactions"
-          description: "The following is a section of interactions related to the shopping cart"
-          interactions:   [
-            new Interaction
-              description: "List products added into your shopping-cart. (comment block again in Markdown)"
-              method:      "GET"
-              url:         "/shopping-cart"
-              request:     new Request
-              responses:   [
-                new Response
-                  status: 200
-                  headers: { "Content-Type": "application/json" }
-                  body: """
-                    { "items": [
-                      { "url": "/shopping-cart/1", "product":"2ZY48XPZ", "quantity": 1, "name": "New socks", "price": 1.25 }
-                    ] }
-                  """
-              ]
-            new Interaction
-              description: "Save new products in your shopping cart"
-              method:      "POST"
-              url:         "/shopping-cart"
-              request: new Request
-                headers: { "Content-Type": "application/json" }
-                body:    "{ \"product\":\"1AB23ORM\", \"quantity\": 2 }"
-              responses: [
-                new Response
-                  status:  201
-                  headers: { "Content-Type": "application/json" }
-                  body:    "{ \"status\": \"created\", \"url\": \"/shopping-cart/2\" }"
-              ]
-          ]
-        new Section
-          name:      "Payment Interactions"
-          interactions: [
-             new Interaction {
-               description: "This resource allows you to submit payment information to process your *shopping cart* items"
-               method:      "POST"
-               url:         "/payment"
-               request:     new Request
-                 body: "{ \"cc\": \"12345678900\", \"cvc\": \"123\", \"expiry\": \"0112\" }"
-               responses:   [
-                 new Response
-                   status: 200
-                   body:   "{ \"receipt\": \"/payment/receipt/1\" }"
-               ]
-             }
-          ]
+      interactions:  [
+        new Interaction
+          description: "List products added into your shopping-cart. (comment block again in Markdown)"
+          method:      "GET"
+          url:         "/shopping-cart"
+          request:     new Request
+          response:    new Response
+            status: 200
+            headers: { "Content-Type": "application/json" }
+            body: """
+              { "items": [
+                { "url": "/shopping-cart/1", "product":"2ZY48XPZ", "quantity": 1, "name": "New socks", "price": 1.25 }
+              ] }
+            """
+        new Interaction
+          description: "Save new products in your shopping cart\nbla bla bla"
+          method:      "POST"
+          url:         "/shopping-cart"
+          request: new Request
+            headers: { "Content-Type": "application/json" }
+            body:    "{ \"product\":\"1AB23ORM\", \"quantity\": 2 }"
+          response: new Response
+            status:  201
+            headers: { "Content-Type": "application/json" }
+            body:    "{ \"status\": \"created\", \"url\": \"/shopping-cart/2\" }"
+
+        new Interaction
+          description: "This resource allows you to submit payment information to process your *shopping cart* items"
+          method:      "POST"
+          url:         "/payment"
+          request: new Request
+            body: "{ \"cc\": \"12345678900\", \"cvc\": \"123\", \"expiry\": \"0112\" }"
+          response: new Response
+              status: 200
+              body:   "{ \"receipt\": \"/payment/receipt/1\" }"
       ]
