@@ -1,7 +1,8 @@
-fs     = require "fs"
-path   = require "path"
-parser = require "../lib/katt-blueprint-parser"
-chai   = require "chai"
+fs           = require "fs"
+path         = require "path"
+chai         = require "chai"
+apiaryParser = require "apiary-blueprint-parser"
+parser       = require "../lib/katt-blueprint-parser"
 
 EXAMPLE_FILE = path.resolve(path.join(__dirname, "..", "examples", "example.apib"))
 
@@ -1170,3 +1171,15 @@ describe "KATT API blueprint parser", ->
   it "returns a parsed blueprint #toBlueprint() as the original blueprint", ->
     exampleBlueprint = fs.readFileSync(EXAMPLE_FILE).toString()
     assert.deepEqual parser.parse(exampleBlueprint).toBlueprint() + '\n', exampleBlueprint
+
+
+  describe "#toBlueprint()", ->
+    it "returns a string that is a valid KATT API Blueprint", ->
+      exampleBlueprint = fs.readFileSync(EXAMPLE_FILE).toString()
+      assert.deepEqual parser.parse(exampleBlueprint).toBlueprint() + '\n', exampleBlueprint
+
+
+    it "returns a string that is a valid Apiary API Blueprint", ->
+      exampleBlueprint = fs.readFileSync(EXAMPLE_FILE).toString()
+      apiaryBlueprint = parser.parse(exampleBlueprint).toBlueprint()
+      assert.deepEqual apiaryParser.parse(apiaryBlueprint).toBlueprint() + '\n', exampleBlueprint
