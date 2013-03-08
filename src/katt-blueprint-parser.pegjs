@@ -92,12 +92,10 @@ Operation
     request:Request
     response:Response
     {
-      var url = "/" + signature.url.replace(/^\//, "");
-
       return new Operation({
         description: nullIfEmpty(description),
         method:      signature.method,
-        url:         url,
+        url:         signature.url,
         request:     request,
         response:    response
       });

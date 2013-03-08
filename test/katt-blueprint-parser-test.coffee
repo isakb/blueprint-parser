@@ -334,12 +334,24 @@ describe "KATT API blueprint parser", ->
 
       GET /url
       < 200
+
+      GET http://host:80/
+      < 200
+
+      GET {{<var}}
+      < 200
+
+      GET /url/{{<var}}
+      < 200
     """, new Blueprint
       name:        "API"
       operations: [
-        new Operation url: "/url"
+        new Operation url: "url"
         new Operation url: "/"
         new Operation url: "/url"
+        new Operation url: "http://host:80/"
+        new Operation url: "{{<var}}"
+        new Operation url: "/url/{{<var}}"
       ]
 
   # Canonical OperationDescription is "Root resource".
