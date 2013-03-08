@@ -532,16 +532,6 @@ describe "KATT API blueprint parser", ->
         "Content-Length": "153"
         "Cache-Control":  "no-cache"
 
-  # Canonical RequestHeader is "< Content-Type: application/json".
-  it "parses RequestHeader", ->
-    assert.parse """
-      --- API ---
-
-      GET /
-      > Content-Type: application/json
-      < 200
-    """, requestBlueprint headers: { "Content-Type": "application/json" }
-
   # Canonical Response is:
   #
   #   < 200
@@ -562,31 +552,6 @@ describe "KATT API blueprint parser", ->
       { "id": 1 }
     """, operationBlueprint response: response
 
-    assert.parse """
-      --- API ---
-
-      GET /
-      < 200
-      < Content-Type: application/json
-      { "id": 1 }
-    """, operationBlueprint response: response
-
-    assert.parse """
-      --- API ---
-
-      GET /
-      < 200
-      < Content-Type: application/json
-      { "id": 1 }
-    """, operationBlueprint response: response
-
-  # Canonical Response is:
-  #
-  #   < 200
-  #   < Content-Type: application/json
-  #   { "status": "ok" }
-  #
-  it "parses Response", ->
     assert.parse """
       --- API ---
 
@@ -614,20 +579,6 @@ describe "KATT API blueprint parser", ->
 
   # Canonical ResponseStatus is "> 200".
   it "parses ResponseStatus", ->
-    assert.parse """
-      --- API ---
-
-      GET /
-      < 200
-    """, operationBlueprint()
-
-    assert.parse """
-      --- API ---
-
-      GET /
-      < 200
-    """,   operationBlueprint()
-
     assert.parse """
       --- API ---
 
@@ -682,21 +633,49 @@ describe "KATT API blueprint parser", ->
       --- API ---
 
       GET /
+      < 200
+    """, responseBlueprint status: 200
+
+    assert.parse """
+      --- API ---
+
+      GET /
+      < 404
+    """, responseBlueprint status: 404
+
+    assert.parse """
+      --- API ---
+      GET /
+      < 500
+    """, responseBlueprint status: 500
+
+    assert.notParse """
+      --- API ---
+
+      GET /
       < 0
-    """, responseBlueprint status: 0
+    """
 
-    assert.parse """
+    assert.notParse """
       --- API ---
 
       GET /
-      < 9
-    """, responseBlueprint status: 9
+      < 42
+    """
 
-    assert.parse """
+    assert.notParse """
       --- API ---
+
       GET /
-      < 123
-    """, responseBlueprint status: 123
+      < -500
+    """
+
+    assert.notParse """
+      --- API ---
+
+      GET /
+      < 666
+    """
 
   # Canonical HttpHeader is "Content-Type: application/json".
   it "parses HttpHeader", ->
