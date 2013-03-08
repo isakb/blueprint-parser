@@ -57,6 +57,7 @@ API
     EmptyLine*
     operations:operations
     EmptyLine*
+    EOF
     {
       return new Blueprint({
         name:         nullIfEmpty(name),
@@ -157,7 +158,7 @@ ResponseHeader
   = Out header:HttpHeader { return header; }
 
 HttpStatus "HTTP status code"
-  = digits:[0-9]+ { return parseInt(digits.join(""), 10); }
+  = digits:([1-5][0-9][0-9]) { return parseInt(digits.join(""), 10); }
 
 HttpHeader
   = name:HttpHeaderName ":" S* value:HttpHeaderValue EOLF {
