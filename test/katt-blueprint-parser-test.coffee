@@ -68,9 +68,9 @@ describe "KATT API blueprint parser", ->
       name:        "API"
       description: "Test API"
       operations: [
-        new Operation url: "/one"
-        new Operation url: "/two"
-        new Operation url: "/three"
+        new Operation request: new Request(url: "/one")
+        new Operation request: new Request(url: "/two")
+        new Operation request: new Request(url: "/three")
       ]
 
     assert.parse """
@@ -232,13 +232,13 @@ describe "KATT API blueprint parser", ->
       name: "API"
 
     blueprint1 = scenarioBlueprint
-      operations: [new Operation url: "/one"]
+      operations: [new Operation request: new Request(url: "/one")]
 
     blueprint3 = scenarioBlueprint
       operations: [
-        new Operation url: "/one"
-        new Operation url: "/two"
-        new Operation url: "/three"
+        new Operation request: new Request(url: "/one")
+        new Operation request: new Request(url: "/two")
+        new Operation request: new Request(url: "/three")
       ]
 
     assert.parse """
@@ -346,12 +346,12 @@ describe "KATT API blueprint parser", ->
     """, new Blueprint
       name:        "API"
       operations: [
-        new Operation url: "url"
-        new Operation url: "/"
-        new Operation url: "/url"
-        new Operation url: "http://host:80/"
-        new Operation url: "{{<var}}"
-        new Operation url: "/url/{{<var}}"
+        new Operation request: new Request(url: "url")
+        new Operation request: new Request(url: "/")
+        new Operation request: new Request(url: "/url")
+        new Operation request: new Request(url: "http://host:80/")
+        new Operation request: new Request(url: "{{<var}}")
+        new Operation request: new Request(url: "/url/{{<var}}")
       ]
 
   # Canonical OperationDescription is "Root resource".
@@ -399,90 +399,90 @@ describe "KATT API blueprint parser", ->
 
       GET /
       < 200
-    """, operationBlueprint method: "GET"
+    """, requestBlueprint method: "GET"
 
     assert.parse """
       --- API ---
 
       POST /
       < 200
-    """, operationBlueprint method: "POST"
+    """, requestBlueprint method: "POST"
 
     assert.parse """
       --- API ---
 
       PUT /
       < 200
-    """, operationBlueprint method: "PUT"
+    """, requestBlueprint method: "PUT"
 
     assert.parse """
       --- API ---
 
       MKCOL /
       < 200
-    """, operationBlueprint method: "MKCOL"
+    """, requestBlueprint method: "MKCOL"
 
     assert.parse """
       --- API ---
 
       OPTIONS /
       < 200
-    """, operationBlueprint method: "OPTIONS"
+    """, requestBlueprint method: "OPTIONS"
 
     assert.parse """
       --- API ---
 
       PATCH /
       < 200
-    """, operationBlueprint method: "PATCH"
+    """, requestBlueprint method: "PATCH"
 
     assert.parse """
       --- API ---
 
       PROPPATCH /
       < 200
-    """, operationBlueprint method: "PROPPATCH"
+    """, requestBlueprint method: "PROPPATCH"
     assert.parse """
       --- API ---
 
       LOCK /
       < 200
-    """, operationBlueprint method: "LOCK"
+    """, requestBlueprint method: "LOCK"
 
     assert.parse """
       --- API ---
 
       UNLOCK /
       < 200
-    """, operationBlueprint method: "UNLOCK"
+    """, requestBlueprint method: "UNLOCK"
 
     assert.parse """
       --- API ---
 
       COPY /
       < 200
-    """, operationBlueprint method: "COPY"
+    """, requestBlueprint method: "COPY"
 
     assert.parse """
       --- API ---
 
       MOVE /
       < 200
-    """, operationBlueprint method: "MOVE"
+    """, requestBlueprint method: "MOVE"
 
     assert.parse """
       --- API ---
 
       DELETE /
       < 200
-    """, operationBlueprint method: "DELETE"
+    """, requestBlueprint method: "DELETE"
 
     assert.parse """
       --- API ---
 
       HEAD /
       < 200
-    """, operationBlueprint method: "HEAD"
+    """, requestBlueprint method: "HEAD"
 
   # Canonical Request is:
   #
@@ -1125,9 +1125,9 @@ describe "KATT API blueprint parser", ->
       operations:  [
         new Operation
           description: "List products added into your shopping-cart. (comment block again in Markdown)"
-          method:      "GET"
-          url:         "/shopping-cart"
           request:     new Request
+            method: "GET"
+            url: "/shopping-cart"
           response:    new Response
             status: 200
             headers: { "Content-Type": "application/json" }
@@ -1138,9 +1138,9 @@ describe "KATT API blueprint parser", ->
             """
         new Operation
           description: "Save new products in your shopping cart\nbla bla bla"
-          method:      "POST"
-          url:         "/shopping-cart"
           request: new Request
+            method:  "POST"
+            url:     "/shopping-cart"
             headers: { "Content-Type": "application/json" }
             body:    "{ \"product\":\"1AB23ORM\", \"quantity\": 2 }"
           response: new Response
@@ -1150,9 +1150,9 @@ describe "KATT API blueprint parser", ->
 
         new Operation
           description: "This resource allows you to submit payment information to process your *shopping cart* items"
-          method:      "POST"
-          url:         "/payment"
           request: new Request
+            method:      "POST"
+            url:         "/payment"
             body: "{ \"cc\": \"12345678900\", \"cvc\": \"123\", \"expiry\": \"0112\" }"
           response: new Response
               status: 200

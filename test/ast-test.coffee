@@ -9,35 +9,26 @@ Response             = parser.ast.Response
 
 # AST nodes
 
-filledRequest = new Request
-  headers: { "Content-Type": "application/json" }
-  body:    "{ \"status\": \"ok\" }"
+filledRequest = (method = "GET", url = "/") ->
+  new Request
+    method: method
+    url: url
+    headers: { "Content-Type": "application/json" }
+    body:    "{ \"status\": \"ok\" }"
 
-filledResponse = new Response
-  status:  200
-  headers: { "Content-Type": "application/json" }
-  body:    "{ \"id\": 1 }"
+filledResponse = ->
+  new Response
+    status:  200
+    headers: { "Content-Type": "application/json" }
+    body:    "{ \"id\": 1 }"
 
-filledOperations = [
+filledOperation = (n) ->
   new Operation
-    description: "Post to resource 1"
-    method:      "POST"
-    url:         "/post-1"
-    request:     filledRequest
-    response:    filledResponse
-  new Operation
-    description: "Post to resource 2"
-    method:      "POST"
-    url:         "/post-2"
-    request:     filledRequest
-    response:    filledResponse
-  new Operation
-    description: "Post to resource 3"
-    method:      "POST"
-    url:         "/post-3"
-    request:     filledRequest
-    response:    filledResponse
-]
+    description: "Post to resource #{n}"
+    request:     filledRequest("POST", "/post-#{n}")
+    response:    filledResponse()
+
+filledOperations = (filledOperation(n) for n in [1..3])
 
 filledBlueprint = new Blueprint
   name:        "API"
@@ -46,39 +37,26 @@ filledBlueprint = new Blueprint
 
 # JSONs
 
-filledRequestJson =
+filledRequestJson = (method = "GET", url = "/") ->
+  method: method,
+  url: url,
   headers: { "Content-Type": "application/json" }
   body:    "{ \"status\": \"ok\" }"
 
-filledResponseJson =
-    status:  200
-    headers: { "Content-Type": "application/json" }
-    body:    "{ \"id\": 1 }"
+filledResponseJson = ->
+  status:  200
+  headers: { "Content-Type": "application/json" }
+  body:    "{ \"id\": 1 }"
 
 
-filledOperationJsons = [
+filledOperationJson = (n) ->
   {
-    description: "Post to resource 1"
-    method:      "POST"
-    url:         "/post-1"
-    request:     filledRequestJson
-    response:    filledResponseJson
+    description: "Post to resource #{n}"
+    request:     filledRequestJson("POST", "/post-#{n}")
+    response:    filledResponseJson()
   }
-  {
-    description: "Post to resource 2"
-    method:      "POST"
-    url:         "/post-2"
-    request:     filledRequestJson
-    response:    filledResponseJson
-  }
-  {
-    description: "Post to resource 3"
-    method:      "POST"
-    url:         "/post-3"
-    request:     filledRequestJson
-    response:    filledResponseJson
-  }
-]
+
+filledOperationJsons = (filledOperationJson(n) for n in [1..3])
 
 filledBlueprintJson =
   name:         "API"
@@ -87,38 +65,28 @@ filledBlueprintJson =
 
 # Blueprints
 
-filledRequestBlueprint = """
+filledRequestBlueprint = (method = "GET", url = "/") ->
+  """
+  #{method} #{url}
   > Content-Type: application/json
   { "status": "ok" }
-"""
+  """
 
-filledResponseBlueprint = """
+filledResponseBlueprint = ->
+  """
   < 200
   < Content-Type: application/json
   { "id": 1 }
-"""
+  """
 
+filledOperationBlueprint = (n) ->
+  """
+    Post to resource #{n}
+    #{filledRequestBlueprint("POST", "/post-#{n}")}
+    #{filledResponseBlueprint()}
+  """
 
-filledOperationBlueprints = [
-  """
-    Post to resource 1
-    POST /post-1
-    #{filledRequestBlueprint}
-    #{filledResponseBlueprint}
-  """
-  """
-    Post to resource 2
-    POST /post-2
-    #{filledRequestBlueprint}
-    #{filledResponseBlueprint}
-  """
-  """
-    Post to resource 3
-    POST /post-3
-    #{filledRequestBlueprint}
-    #{filledResponseBlueprint}
-  """
-]
+filledOperationBlueprints = (filledOperationBlueprint(n) for n in [1..3])
 
 filledBlueprintBlueprint = """
   --- API ---
@@ -218,17 +186,13 @@ describe "Operation", ->
         operation = filledOperations[0]
 
         assert.deepEqual operation.description, "Post to resource 1"
-        assert.deepEqual operation.method,      "POST"
-        assert.deepEqual operation.url,         "/post-1"
-        assert.deepEqual operation.request,     filledRequest
-        assert.deepEqual operation.response,    filledResponse
+        assert.deepEqual operation.request,     filledRequest("POST", "/post-1")
+        assert.deepEqual operation.response,    filledResponse()
 
     describe "when not passed property values", ->
       it "uses correct defaults", ->
         assert.deepEqual emptyOperation.description, null
-        assert.deepEqual emptyOperation.method,      "GET"
-        assert.deepEqual emptyOperation.url,         "/"
-        assert.deepEqual emptyOperation.request,     new Request
+        assert.deepEqual emptyOperation.request,     new Request(method: "GET", url: "/")
         assert.deepEqual emptyOperation.response,    new Response
 
   describe "#toJSON", ->
@@ -250,13 +214,13 @@ describe "Request", ->
 
   describe ".fromJSON", ->
     it "creates a new request from a JSON-serializable object", ->
-      assert.deepEqual Request.fromJSON(filledRequestJson), filledRequest
+      assert.deepEqual Request.fromJSON(filledRequestJson()), filledRequest()
 
   describe "#constructor", ->
     describe "when passed property values", ->
       it "initializes properties correctly", ->
-        assert.deepEqual filledRequest.headers, { "Content-Type": "application/json" }
-        assert.deepEqual filledRequest.body,    "{ \"status\": \"ok\" }"
+        assert.deepEqual filledRequest().headers, { "Content-Type": "application/json" }
+        assert.deepEqual filledRequest().body,    "{ \"status\": \"ok\" }"
 
     describe "when not passed property values", ->
       it "uses correct defaults", ->
@@ -266,35 +230,35 @@ describe "Request", ->
   describe "#toJSON", ->
     describe "on a filled-in request", ->
       it "returns a correct JSON-serializable object", ->
-        assert.deepEqual filledRequest.toJSON(), filledRequestJson
+        assert.deepEqual filledRequest().toJSON(), filledRequestJson()
 
   describe "#toBlueprint", ->
     describe "on an empty request", ->
       it "returns a correct blueprint", ->
-        assert.deepEqual emptyRequest.toBlueprint(), ""
+        assert.deepEqual emptyRequest.toBlueprint(), "GET /"
 
     describe "on a filled-in request", ->
       it "returns a correct blueprint", ->
-        assert.deepEqual filledRequest.toBlueprint(), filledRequestBlueprint
+        assert.deepEqual filledRequest().toBlueprint(), filledRequestBlueprint()
 
     describe "on requests with weird bodies", ->
       it "uses suitable body syntax", ->
         for testcase in bodyTestcases
           request = new Request body: testcase.body
 
-          assert.deepEqual request.toBlueprint(), testcase.blueprint
+          assert.deepEqual request.toBlueprint(), "GET /\n" + testcase.blueprint
 
 describe "Response", ->
   emptyResponse = new Response
 
   describe ".fromJSON", ->
     it "creates a new response from a JSON-serializable object", ->
-      assert.deepEqual Response.fromJSON(filledResponseJson), filledResponse
+      assert.deepEqual Response.fromJSON(filledResponseJson()), filledResponse()
 
   describe "#constructor", ->
     describe "when passed property values", ->
       it "initializes properties correctly", ->
-        response = filledResponse
+        response = filledResponse()
 
         assert.deepEqual response.status,  200
         assert.deepEqual response.headers, { "Content-Type": "application/json" }
@@ -309,7 +273,7 @@ describe "Response", ->
   describe "#toJSON", ->
     describe "on a filled-in response", ->
       it "returns a correct JSON-serializable object", ->
-        assert.deepEqual filledResponse.toJSON(), filledResponseJson
+        assert.deepEqual filledResponse().toJSON(), filledResponseJson()
 
   describe "#toBlueprint", ->
     describe "on an empty response", ->
@@ -318,7 +282,7 @@ describe "Response", ->
 
     describe "on a filled-in response", ->
       it "returns a correct blueprint", ->
-        assert.deepEqual filledResponse.toBlueprint(), filledResponseBlueprint
+        assert.deepEqual filledResponse().toBlueprint(), filledResponseBlueprint()
 
     describe "on responses with weird bodies", ->
       it "uses suitable body syntax", ->
