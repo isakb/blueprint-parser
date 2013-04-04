@@ -54,32 +54,23 @@ class Operation
   @fromJSON: (json) ->
     new this
       description: json.description
-      method:      json.method
-      url:         json.url
       request:     Request.fromJSON(json.request)
       response:    Response.fromJSON(json.response)
 
   constructor: (props = {}) ->
     fillProps this, props,
       description: null
-      method:      "GET"
-      url:         "/"
       request:     new Request
       response:    new Response
 
-  getUrlFragment: -> "#{@method.toLowerCase()}-#{encodeURIComponent @url}"
-
   toJSON: ->
     description: @description
-    method:      @method
-    url:         @url
     request:     @request.toJSON()
     response:    @response.toJSON()
 
   toBlueprint: ->
     combineParts "\n", (parts) =>
       parts.push @description if @description
-      parts.push "#{@method} #{@url}"
 
       requestBlueprint = @request.toBlueprint()
       parts.push requestBlueprint if requestBlueprint isnt ""
@@ -91,20 +82,27 @@ class Operation
 class Request
   @fromJSON: (json) ->
     new this
+      method:  json.method
+      url:     json.url
       headers: json.headers
       body:    json.body
 
   constructor: (props = {}) ->
     fillProps this, props,
+      method:  "GET"
+      url:     "/"
       headers: {},
       body:    null
 
   toJSON: ->
+    method:  @method
+    url:     @url
     headers: @headers
     body:    @body
 
   toBlueprint: ->
     combineParts "\n", (parts) =>
+      parts.push "#{@method} #{@url}"
       parts.push "> #{name}: #{value}" for name, value of @headers
       parts.push escapeBody(@body) if @body
 

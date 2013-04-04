@@ -55,7 +55,7 @@ API
     EmptyLine*
     description:APIDescription?
     EmptyLine*
-    operations:operations
+    operations:Operations
     EmptyLine*
     EOF
     {
@@ -79,7 +79,7 @@ APIDescription
 APIDescriptionLine
   = !("---" S* EOLF) text:Text0 EOL { return text; }
 
-operations
+Operations
   = head:Operation?
     tail:(EmptyLine* operation:Operation { return operation; })*
     {
@@ -88,14 +88,12 @@ operations
 
 Operation
   = description:OperationDescription?
-    signature:Signature
     request:Request
     response:Response
     {
       return new Operation({
         description: nullIfEmpty(description),
-        method:      signature.method,
-        url:         signature.url,
+
         request:     request,
         response:    response
       });
@@ -124,8 +122,10 @@ HttpMethod
   / "HEAD"
 
 Request
-  = headers:RequestHeaders body:Body? {
+  = signature:Signature headers:RequestHeaders body:Body? {
       return new Request({
+        method:  signature.method,
+        url:     signature.url,
         headers: headers,
         body:    nullIfEmpty(body)
       });
