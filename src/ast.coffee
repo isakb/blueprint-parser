@@ -24,8 +24,9 @@ escapeBody = (body) ->
 
 # Represents a KATT API blueprint.
 class Blueprint
+  self = @
   @fromJSON: (json) ->
-    new this
+    new self
       name:         json.name
       description:  json.description
       operations:   Operation.fromJSON(s) for s in json.operations
