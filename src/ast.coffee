@@ -1,3 +1,5 @@
+VERSION = require('../package').version
+
 fillProps = (object, props, defaults) ->
   for key of defaults
     object[key] = props[key] or defaults[key]
@@ -29,28 +31,28 @@ class Blueprint
     new self
       name:         json.name
       description:  json.description
-      operations:   Operation.fromJSON(s) for s in json.operations
+      transactions: Transaction.fromJSON(s) for s in json.transactions
 
   constructor: (props = {}) ->
     fillProps this, props,
       name:         null
       description:  null
-      operations:   []
+      transactions: []
 
   toJSON: ->
-    name:        @name
-    description: @description
-    operations:  o.toJSON() for o in @operations
+    name:         @name
+    description:  @description
+    transactions: o.toJSON() for o in @transactions
 
   toBlueprint: ->
     combineParts "\n\n", (parts) =>
       parts.push "--- #{@name} ---"          if @name
       parts.push "---\n#{@description}\n---" if @description
 
-      parts.push o.toBlueprint() for o in @operations
+      parts.push o.toBlueprint() for o in @transactions
 
-# Represents an operation of a KATT API blueprint scenario.
-class Operation
+# Represents an transaction of a KATT API blueprint scenario.
+class Transaction
   @fromJSON: (json) ->
     new this
       description: json.description
@@ -78,7 +80,7 @@ class Operation
       responseBlueprint =  @response.toBlueprint()
       parts.push responseBlueprint if responseBlueprint isnt ""
 
-# Represents a request of an operation.
+# Represents a request of an transaction.
 class Request
   @fromJSON: (json) ->
     new this
@@ -106,7 +108,7 @@ class Request
       parts.push "> #{name}: #{value}" for name, value of @headers
       parts.push escapeBody(@body) if @body
 
-# Represents a response of an operation.
+# Represents a response of an transaction.
 class Response
   @fromJSON: (json) ->
     new this
@@ -131,8 +133,10 @@ class Response
       parts.push "< #{name}: #{value}" for name, value of @headers
       parts.push escapeBody(@body) if @body
 
-module.exports =
-  Blueprint:            Blueprint
-  Operation:            Operation
-  Request:              Request
-  Response:             Response
+module.exports = {
+  VERSION
+  Blueprint
+  Transaction
+  Request
+  Response
+}
