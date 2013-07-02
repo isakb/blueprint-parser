@@ -1,3 +1,5 @@
+VERSION = require('../package').version
+
 fillProps = (object, props, defaults) ->
   for key of defaults
     object[key] = props[key] or defaults[key]
@@ -131,8 +133,10 @@ class Response
       parts.push "< #{name}: #{value}" for name, value of @headers
       parts.push escapeBody(@body) if @body
 
-module.exports =
-  Blueprint:            Blueprint
-  Operation:            Operation
-  Request:              Request
-  Response:             Response
+module.exports = {
+  VERSION
+  Blueprint
+  Operation
+  Request
+  Response
+}
