@@ -1,26 +1,26 @@
 {
-    "name": "katt-blueprint-parser",
-    "version": "1.0.2",
-    "description": "KATT blueprint parser (derived from Apiary blueprint parser)",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/isakb/blueprint-parser"
-    },
-    "author": {
-        "name": "Apiary Ltd.",
-        "email": "team@apiary.io",
-        "url": "http://apiary.io/"
-    },
-    "main": "lib/katt-blueprint-parser",
-    "devDependencies": {
-        "apiary-blueprint-parser": "~0.4.2",
-        "chai": "~1.3.0",
-        "coffee-script": "~1.6.3",
-        "mocha": "~1.7.1",
-        "pegjs": "git://github.com/dmajda/pegjs.git#798ed6a8a4fbfc36b312ba09d428a5832808d9d6"
-    },
-    "scripts": {
-        "prepublish": "npm test",
-        "test": "make test"
-    }
+  "name": "katt-blueprint-parser",
+  "version": "1.1.0",
+  "description": "KATT blueprint parser (derived from Apiary blueprint parser)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/isakb/blueprint-parser"
+  },
+  "author": {
+    "name": "Apiary Ltd.",
+    "email": "team@apiary.io",
+    "url": "http://apiary.io/"
+  },
+  "main": "lib/katt-blueprint-parser",
+  "devDependencies": {
+    "apiary-blueprint-parser": "~0.4.2",
+    "chai": "~1.3.0",
+    "coffee-script": "~1.6.3",
+    "mocha": "~1.7.1",
+    "pegjs": "git://github.com/dmajda/pegjs.git#798ed6a8a4fbfc36b312ba09d428a5832808d9d6"
+  },
+  "scripts": {
+    "prepublish": "npm test",
+    "test": "make test"
+  }
 }
