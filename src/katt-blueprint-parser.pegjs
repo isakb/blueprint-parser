@@ -40,7 +40,7 @@
    * We must save these because |this| doesn't refer to the parser in actions.
    */
   var Blueprint            = this.ast.Blueprint,
-      Operation            = this.ast.Operation,
+      Transaction          = this.ast.Transaction,
       Request              = this.ast.Request,
       Response             = this.ast.Response;
 
@@ -55,14 +55,14 @@ API
     EmptyLine*
     description:APIDescription?
     EmptyLine*
-    operations:Operations
+    transactions:Transactions
     EmptyLine*
     EOF
     {
       return new Blueprint({
         name:         nullIfEmpty(name),
         description:  nullIfEmpty(description),
-        operations:   operations
+        transactions: transactions
       });
     }
 
@@ -79,19 +79,19 @@ APIDescription
 APIDescriptionLine
   = !("---" S* EOLF) text:Text0 EOL { return text; }
 
-Operations
-  = head:Operation?
-    tail:(EmptyLine* operation:Operation { return operation; })*
+Transactions
+  = head:Transaction?
+    tail:(EmptyLine* transaction:Transaction { return transaction; })*
     {
       return combineHeadTail(head, tail);
     }
 
-Operation
-  = description:OperationDescription?
+Transaction
+  = description:TransactionDescription?
     request:Request
     response:Response
     {
-      return new Operation({
+      return new Transaction({
         description: nullIfEmpty(description),
 
         request:     request,
@@ -99,10 +99,10 @@ Operation
       });
     }
 
-OperationDescription "operation description"
-  = lines:OperationDescriptionLine+ { return lines.join("\n"); }
+TransactionDescription "transaction description"
+  = lines:TransactionDescriptionLine+ { return lines.join("\n"); }
 
-OperationDescriptionLine
+TransactionDescriptionLine
   = !HttpMethod text:Text0 EOL { return text; }
 
 /* Assembled from RFC 2616, 5323, 5789. */

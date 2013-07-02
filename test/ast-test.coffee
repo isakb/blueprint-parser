@@ -3,7 +3,7 @@ parser     = require "../lib/katt-blueprint-parser"
 
 
 Blueprint            = parser.ast.Blueprint
-Operation            = parser.ast.Operation
+Transaction          = parser.ast.Transaction
 Request              = parser.ast.Request
 Response             = parser.ast.Response
 
@@ -22,18 +22,18 @@ filledResponse = ->
     headers: { "Content-Type": "application/json" }
     body:    "{ \"id\": 1 }"
 
-filledOperation = (n) ->
-  new Operation
+filledTransaction = (n) ->
+  new Transaction
     description: "Post to resource #{n}"
     request:     filledRequest("POST", "/post-#{n}")
     response:    filledResponse()
 
-filledOperations = (filledOperation(n) for n in [1..3])
+filledTransactions = (filledTransaction(n) for n in [1..3])
 
 filledBlueprint = new Blueprint
   name:        "API"
   description: "Test API"
-  operations:  filledOperations
+  transactions:  filledTransactions
 
 # JSONs
 
@@ -49,19 +49,19 @@ filledResponseJson = ->
   body:    "{ \"id\": 1 }"
 
 
-filledOperationJson = (n) ->
+filledTransactionJson = (n) ->
   {
     description: "Post to resource #{n}"
     request:     filledRequestJson("POST", "/post-#{n}")
     response:    filledResponseJson()
   }
 
-filledOperationJsons = (filledOperationJson(n) for n in [1..3])
+filledTransactionJsons = (filledTransactionJson(n) for n in [1..3])
 
 filledBlueprintJson =
   name:         "API"
   description:  "Test API"
-  operations: filledOperationJsons
+  transactions: filledTransactionJsons
 
 # Blueprints
 
@@ -79,14 +79,14 @@ filledResponseBlueprint = ->
   { "id": 1 }
   """
 
-filledOperationBlueprint = (n) ->
+filledTransactionBlueprint = (n) ->
   """
     Post to resource #{n}
     #{filledRequestBlueprint("POST", "/post-#{n}")}
     #{filledResponseBlueprint()}
   """
 
-filledOperationBlueprints = (filledOperationBlueprint(n) for n in [1..3])
+filledTransactionBlueprints = (filledTransactionBlueprint(n) for n in [1..3])
 
 filledBlueprintBlueprint = """
   --- API ---
@@ -95,11 +95,11 @@ filledBlueprintBlueprint = """
   Test API
   ---
 
-  #{filledOperationBlueprints[0]}
+  #{filledTransactionBlueprints[0]}
 
-  #{filledOperationBlueprints[1]}
+  #{filledTransactionBlueprints[1]}
 
-  #{filledOperationBlueprints[2]}
+  #{filledTransactionBlueprints[2]}
 """
 
 bodyTestcases = [
@@ -149,15 +149,15 @@ describe "Blueprint", ->
       it "initializes properties correctly", ->
         blueprint = filledBlueprint
 
-        assert.deepEqual blueprint.name,        "API"
-        assert.deepEqual blueprint.description, "Test API"
-        assert.deepEqual blueprint.operations,  filledOperations
+        assert.deepEqual blueprint.name,         "API"
+        assert.deepEqual blueprint.description,  "Test API"
+        assert.deepEqual blueprint.transactions, filledTransactions
 
     describe "when not passed property values", ->
       it "uses correct defaults", ->
-        assert.deepEqual emptyBlueprint.name,        null
-        assert.deepEqual emptyBlueprint.description, null
-        assert.deepEqual emptyBlueprint.operations,  []
+        assert.deepEqual emptyBlueprint.name,         null
+        assert.deepEqual emptyBlueprint.description,  null
+        assert.deepEqual emptyBlueprint.transactions, []
 
   describe "#toJSON", ->
     describe "on a filled-in blueprint", ->
@@ -173,41 +173,41 @@ describe "Blueprint", ->
       it "returns a correct blueprint", ->
         assert.deepEqual filledBlueprint.toBlueprint(), filledBlueprintBlueprint
 
-describe "Operation", ->
-  emptyOperation = new Operation
+describe "Transaction", ->
+  emptyTransaction = new Transaction
 
   describe ".fromJSON", ->
-    it "creates a new operation from a JSON-serializable object", ->
-      assert.deepEqual Operation.fromJSON(filledOperationJsons[0]), filledOperations[0]
+    it "creates a new transaction from a JSON-serializable object", ->
+      assert.deepEqual Transaction.fromJSON(filledTransactionJsons[0]), filledTransactions[0]
 
   describe "#constructor", ->
     describe "when passed property values", ->
       it "initializes properties correctly", ->
-        operation = filledOperations[0]
+        transaction = filledTransactions[0]
 
-        assert.deepEqual operation.description, "Post to resource 1"
-        assert.deepEqual operation.request,     filledRequest("POST", "/post-1")
-        assert.deepEqual operation.response,    filledResponse()
+        assert.deepEqual transaction.description, "Post to resource 1"
+        assert.deepEqual transaction.request,     filledRequest("POST", "/post-1")
+        assert.deepEqual transaction.response,    filledResponse()
 
     describe "when not passed property values", ->
       it "uses correct defaults", ->
-        assert.deepEqual emptyOperation.description, null
-        assert.deepEqual emptyOperation.request,     new Request(method: "GET", url: "/")
-        assert.deepEqual emptyOperation.response,    new Response
+        assert.deepEqual emptyTransaction.description, null
+        assert.deepEqual emptyTransaction.request,     new Request(method: "GET", url: "/")
+        assert.deepEqual emptyTransaction.response,    new Response
 
   describe "#toJSON", ->
-    describe "on a filled-in operation", ->
+    describe "on a filled-in transaction", ->
       it "returns a correct JSON-serializable object", ->
-        assert.deepEqual filledOperations[0].toJSON(), filledOperationJsons[0]
+        assert.deepEqual filledTransactions[0].toJSON(), filledTransactionJsons[0]
 
   describe "#toBlueprint", ->
-    describe "on an empty operation", ->
+    describe "on an empty transaction", ->
       it "returns a correct blueprint", ->
-        assert.deepEqual emptyOperation.toBlueprint(), "GET /\n< 200"
+        assert.deepEqual emptyTransaction.toBlueprint(), "GET /\n< 200"
 
-    describe "on a filled-in operation", ->
+    describe "on a filled-in transaction", ->
       it "returns a correct blueprint", ->
-        assert.deepEqual filledOperations[0].toBlueprint(), filledOperationBlueprints[0]
+        assert.deepEqual filledTransactions[0].toBlueprint(), filledTransactionBlueprints[0]
 
 describe "Request", ->
   emptyRequest = new Request

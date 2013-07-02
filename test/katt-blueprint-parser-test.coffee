@@ -38,23 +38,23 @@ chai.use (chai, util) ->
 assert = chai.assert
 
 Blueprint            = parser.ast.Blueprint
-Operation            = parser.ast.Operation
+Transaction          = parser.ast.Transaction
 Request              = parser.ast.Request
 Response             = parser.ast.Response
 
 scenarioBlueprint = (props = {}) ->
   new Blueprint
     name:       "API"
-    operations: props.operations
+    transactions: props.transactions
 
-operationBlueprint = (props = {}) ->
-  scenarioBlueprint operations: [new Operation(props)]
+transactionBlueprint = (props = {}) ->
+  scenarioBlueprint transactions: [new Transaction(props)]
 
 requestBlueprint = (props = {}) ->
-  operationBlueprint request: new Request(props)
+  transactionBlueprint request: new Request(props)
 
 responseBlueprint = (props = {}) ->
-  operationBlueprint response: new Response(props)
+  transactionBlueprint response: new Response(props)
 
 describe "KATT API blueprint parser", ->
   # ===== Rule Tests =====
@@ -65,12 +65,12 @@ describe "KATT API blueprint parser", ->
     # because almost all such tests would use incomplete blueprints already
     # exercised in other tests, only introducing duplication.
     blueprint = new Blueprint
-      name:        "API"
-      description: "Test API"
-      operations: [
-        new Operation request: new Request(url: "/one")
-        new Operation request: new Request(url: "/two")
-        new Operation request: new Request(url: "/three")
+      name:         "API"
+      description:  "Test API"
+      transactions: [
+        new Transaction request: new Request(url: "/one")
+        new Transaction request: new Request(url: "/two")
+        new Transaction request: new Request(url: "/three")
       ]
 
     assert.parse """
@@ -219,7 +219,7 @@ describe "KATT API blueprint parser", ->
       ---
     """
 
-  # Canonical Operations is:
+  # Canonical Transactions is:
   #
   #   GET /one
   #
@@ -227,18 +227,18 @@ describe "KATT API blueprint parser", ->
   #
   #   GET /three
   #
-  it "parses Operations", ->
+  it "parses Transactions", ->
     blueprint0 = new Blueprint
       name: "API"
 
     blueprint1 = scenarioBlueprint
-      operations: [new Operation request: new Request(url: "/one")]
+      transactions: [new Transaction request: new Request(url: "/one")]
 
     blueprint3 = scenarioBlueprint
-      operations: [
-        new Operation request: new Request(url: "/one")
-        new Operation request: new Request(url: "/two")
-        new Operation request: new Request(url: "/three")
+      transactions: [
+        new Transaction request: new Request(url: "/one")
+        new Transaction request: new Request(url: "/two")
+        new Transaction request: new Request(url: "/three")
       ]
 
     assert.parse """
@@ -283,12 +283,12 @@ describe "KATT API blueprint parser", ->
       < 200
     """, blueprint3
 
-  # Canonical Operation is:
+  # Canonical Transaction is:
   #
   #   GET /
   #   < 200
   #
-  it "parses Operation", ->
+  it "parses Transaction", ->
     request = new Request
       headers: { "Content-Type": "application/json" }
       body:    "{ \"status\": \"ok\" }"
@@ -306,7 +306,7 @@ describe "KATT API blueprint parser", ->
       < 200
       < Content-Type: application/json
       { "id": 1 }
-    """, operationBlueprint request: request, response: response
+    """, transactionBlueprint request: request, response: response
 
     assert.parse """
       --- API ---
@@ -318,7 +318,7 @@ describe "KATT API blueprint parser", ->
       < 200
       < Content-Type: application/json
       { "id": 1 }
-    """, operationBlueprint
+    """, transactionBlueprint
       description: "Root resource",
       request:     request,
       response:    response
@@ -345,24 +345,24 @@ describe "KATT API blueprint parser", ->
       < 200
     """, new Blueprint
       name:        "API"
-      operations: [
-        new Operation request: new Request(url: "url")
-        new Operation request: new Request(url: "/")
-        new Operation request: new Request(url: "/url")
-        new Operation request: new Request(url: "http://host:80/")
-        new Operation request: new Request(url: "{{<var}}")
-        new Operation request: new Request(url: "/url/{{<var}}")
+      transactions: [
+        new Transaction request: new Request(url: "url")
+        new Transaction request: new Request(url: "/")
+        new Transaction request: new Request(url: "/url")
+        new Transaction request: new Request(url: "http://host:80/")
+        new Transaction request: new Request(url: "{{<var}}")
+        new Transaction request: new Request(url: "/url/{{<var}}")
       ]
 
-  # Canonical OperationDescription is "Root resource".
-  it "parses OperationDescription", ->
+  # Canonical TransactionDescription is "Root resource".
+  it "parses TransactionDescription", ->
     assert.parse """
       --- API ---
 
       abcd
       GET /
       < 200
-    """, operationBlueprint description: "abcd"
+    """, transactionBlueprint description: "abcd"
 
     assert.parse """
       --- API ---
@@ -372,17 +372,17 @@ describe "KATT API blueprint parser", ->
       ijkl
       GET /
       < 200
-    """, operationBlueprint description: "abcd\nefgh\nijkl"
+    """, transactionBlueprint description: "abcd\nefgh\nijkl"
 
-  # Canonical OperationDescriptionLine is "abcd".
-  it "parses OperationDescriptionLine", ->
+  # Canonical TransactionDescriptionLine is "abcd".
+  it "parses TransactionDescriptionLine", ->
     assert.parse """
       --- API ---
 
       abcd
       GET /
       < 200
-    """, operationBlueprint description: "abcd"
+    """, transactionBlueprint description: "abcd"
 
     assert.notParse """
       --- API ---
@@ -496,7 +496,7 @@ describe "KATT API blueprint parser", ->
       GET /
       > Content-Type: application/json
       < 200
-    """, operationBlueprint
+    """, transactionBlueprint
       request: new Request
         headers: { "Content-Type": "application/json" }
         body:    null
@@ -508,7 +508,7 @@ describe "KATT API blueprint parser", ->
       > Content-Type: application/json
       { "status": "ok" }
       < 200
-    """, operationBlueprint
+    """, transactionBlueprint
       request: new Request
         headers: { "Content-Type": "application/json" }
         body:    "{ \"status\": \"ok\" }"
@@ -562,7 +562,7 @@ describe "KATT API blueprint parser", ->
       < 200
       < Content-Type: application/json
       { "id": 1 }
-    """, operationBlueprint response: response
+    """, transactionBlueprint response: response
 
     assert.parse """
       --- API ---
@@ -570,7 +570,7 @@ describe "KATT API blueprint parser", ->
       GET /
       < 200
       < Content-Type: application/json
-    """, operationBlueprint
+    """, transactionBlueprint
       response: new Response
         status:  200
         headers: { "Content-Type": "application/json" }
@@ -583,7 +583,7 @@ describe "KATT API blueprint parser", ->
       < 200
       < Content-Type: application/json
       { "status": "ok" }
-    """, operationBlueprint
+    """, transactionBlueprint
       response: new Response
         status:  200
         headers: { "Content-Type": "application/json" }
@@ -596,7 +596,7 @@ describe "KATT API blueprint parser", ->
 
       GET /
       < 200
-    """, operationBlueprint()
+    """, transactionBlueprint()
 
   # Canonical ResponseHeaders is " Content-Type: application/json".
   it "parses ResponseHeaders", ->
@@ -1122,8 +1122,8 @@ describe "KATT API blueprint parser", ->
     assert.parse exampleBlueprint, new Blueprint
       name:        "Sample API v2"
       description: "Welcome to the our sample API documentation. All comments can be written in (support [Markdown](http://daringfireball.net/projects/markdown/syntax) syntax)"
-      operations:  [
-        new Operation
+      transactions:  [
+        new Transaction
           description: "List products added into your shopping-cart. (comment block again in Markdown)"
           request:     new Request
             method: "GET"
@@ -1136,7 +1136,7 @@ describe "KATT API blueprint parser", ->
                 { "url": "/shopping-cart/1", "product":"2ZY48XPZ", "quantity": 1, "name": "New socks", "price": 1.25 }
               ] }
             """
-        new Operation
+        new Transaction
           description: "Save new products in your shopping cart\nbla bla bla"
           request: new Request
             method:  "POST"
@@ -1148,7 +1148,7 @@ describe "KATT API blueprint parser", ->
             headers: { "Content-Type": "application/json" }
             body:    "{ \"status\": \"created\", \"url\": \"/shopping-cart/2\" }"
 
-        new Operation
+        new Transaction
           description: "This resource allows you to submit payment information to process your *shopping cart* items"
           request: new Request
             method:      "POST"
@@ -1157,6 +1157,16 @@ describe "KATT API blueprint parser", ->
           response: new Response
               status: 200
               body:   "{ \"receipt\": \"/payment/receipt/1\" }"
+
+        new Transaction
+          description: "Test variable"
+          request: new Request
+            method:      "PUT"
+            url:         "{{<whatever}}"
+            body: "{ \"cc\": \"12345678900\", \"cvc\": \"123\", \"expiry\": \"0112\" }"
+          response: new Response
+              status: 200
+              body:   "{ \"receipt\": \"/payment/receipt/2\" }"
       ]
 
   it "returns a parsed blueprint #toBlueprint() as the original blueprint", ->
