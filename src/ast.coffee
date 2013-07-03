@@ -62,8 +62,8 @@ class Transaction
   constructor: (props = {}) ->
     fillProps this, props,
       description: null
-      request:     new Request
-      response:    new Response
+      request:     new Request()
+      response:    new Response()
 
   toJSON: ->
     description: @description

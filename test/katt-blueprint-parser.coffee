@@ -1,8 +1,11 @@
+{
+  chai
+  assert
+} = require './_utils'
 fs           = require "fs"
 path         = require "path"
-chai         = require "chai"
 apiaryParser = require "apiary-blueprint-parser"
-parser       = require "../lib/katt-blueprint-parser"
+parser       = require "../"
 
 EXAMPLE_FILE = path.resolve(path.join(__dirname, "..", "examples", "example.apib"))
 
@@ -34,8 +37,6 @@ chai.use (chai, util) ->
       null
       input
     )
-
-assert = chai.assert
 
 Blueprint            = parser.ast.Blueprint
 Transaction          = parser.ast.Transaction

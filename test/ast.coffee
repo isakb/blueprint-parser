@@ -1,6 +1,7 @@
-parser     = require "../lib/katt-blueprint-parser"
-{ assert } = require "chai"
-
+{
+  assert
+} = require './_utils'
+parser     = require "../"
 
 Blueprint            = parser.ast.Blueprint
 Transaction          = parser.ast.Transaction
