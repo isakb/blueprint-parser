@@ -1,10 +1,30 @@
 {
   "name": "katt-blueprint-parser",
-  "version": "1.1.0",
   "description": "KATT blueprint parser (derived from Apiary blueprint parser)",
+  "keywords": [
+    "katt",
+    "http",
+    "api",
+    "peg",
+    "pegjs",
+    "parser",
+    "blueprint"
+  ],
+  "version": "1.1.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/isakb/blueprint-parser.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    }
+  ],
+  "bin": {},
+  "scripts": {
+    "prepublish": "make prepublish",
+    "test": "make test"
   },
   "devDependencies": {
     "apiary-blueprint-parser": "~0.4.2",
@@ -16,9 +36,5 @@
     "mocha": "~1.11.0",
     "pegjs": "git://github.com/dmajda/pegjs.git#798ed6a8a4fbfc36b312ba09d428a5832808d9d6",
     "testem": "~0.2.98"
-  },
-  "scripts": {
-    "prepublish": "make prepublish",
-    "test": "make test"
   }
 }
