@@ -9,6 +9,8 @@ all:
 	@rm -rf lib/katt-blueprint-parser.js
 	@$(MAKE) $(COMPILED_PARSER)
 
+prepublish: clean lint all
+
 $(COMPILED_PARSER): $(PARSER)
 	@$(eval input := $<)
 	@$(eval output := $@)
