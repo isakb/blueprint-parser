@@ -4,12 +4,7 @@
   "description": "KATT blueprint parser (derived from Apiary blueprint parser)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/isakb/blueprint-parser"
-  },
-  "author": {
-    "name": "Apiary Ltd.",
-    "email": "team@apiary.io",
-    "url": "http://apiary.io/"
+    "url": "git://github.com/isakb/blueprint-parser.git"
   },
   "main": "lib/katt-blueprint-parser",
   "devDependencies": {
