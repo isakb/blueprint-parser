@@ -10,15 +10,17 @@
     "parser",
     "blueprint"
   ],
-  "version": "1.1.1",
+  "version": "1.1.2",
   "repository": {
     "type": "git",
     "url": "git://github.com/isakb/blueprint-parser.git"
   },
-  "licenses": [{
-    "type": "MIT",
-    "url": "http://opensource.org/licenses/MIT"
-  }],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    }
+  ],
   "scripts": {
     "prepublish": "make prepublish",
     "test": "make test"
