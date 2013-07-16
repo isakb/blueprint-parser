@@ -139,7 +139,7 @@ bodyTestcases = [
 ]
 
 describe "Blueprint", ->
-  emptyBlueprint = new Blueprint
+  emptyBlueprint = new Blueprint()
 
   describe ".fromJSON", ->
     it "creates a new blueprint from a JSON-serializable object", ->
@@ -175,7 +175,7 @@ describe "Blueprint", ->
         assert.deepEqual filledBlueprint.toBlueprint(), filledBlueprintBlueprint
 
 describe "Transaction", ->
-  emptyTransaction = new Transaction
+  emptyTransaction = new Transaction()
 
   describe ".fromJSON", ->
     it "creates a new transaction from a JSON-serializable object", ->
@@ -194,7 +194,7 @@ describe "Transaction", ->
       it "uses correct defaults", ->
         assert.deepEqual emptyTransaction.description, null
         assert.deepEqual emptyTransaction.request,     new Request(method: "GET", url: "/")
-        assert.deepEqual emptyTransaction.response,    new Response
+        assert.deepEqual emptyTransaction.response,    new Response()
 
   describe "#toJSON", ->
     describe "on a filled-in transaction", ->
@@ -211,7 +211,7 @@ describe "Transaction", ->
         assert.deepEqual filledTransactions[0].toBlueprint(), filledTransactionBlueprints[0]
 
 describe "Request", ->
-  emptyRequest = new Request
+  emptyRequest = new Request()
 
   describe ".fromJSON", ->
     it "creates a new request from a JSON-serializable object", ->
@@ -250,7 +250,7 @@ describe "Request", ->
           assert.deepEqual request.toBlueprint(), "GET /\n" + testcase.blueprint
 
 describe "Response", ->
-  emptyResponse = new Response
+  emptyResponse = new Response()
 
   describe ".fromJSON", ->
     it "creates a new response from a JSON-serializable object", ->
