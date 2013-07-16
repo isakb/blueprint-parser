@@ -15,26 +15,28 @@
     "type": "git",
     "url": "git://github.com/isakb/blueprint-parser.git"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://opensource.org/licenses/MIT"
-    }
-  ],
-  "bin": {},
+  "licenses": [{
+    "type": "MIT",
+    "url": "http://opensource.org/licenses/MIT"
+  }],
   "scripts": {
     "prepublish": "make prepublish",
     "test": "make test"
   },
+  "optionalDependencies": {
+    "coffee-script": "~1.6.3",
+    "lodash": "~1.3.1",
+    "pegjs": "git://github.com/dmajda/pegjs.git#798ed6a8a4fbfc36b312ba09d428a5832808d9d6"
+  },
   "devDependencies": {
     "apiary-blueprint-parser": "~0.4.2",
     "chai": "~1.7.0",
-    "coffee-script": "~1.6.3",
     "coffeelint": "~0.5.6",
     "growl": "~1.7.0",
-    "lodash": "~1.3.1",
     "mocha": "~1.11.0",
-    "pegjs": "git://github.com/dmajda/pegjs.git#798ed6a8a4fbfc36b312ba09d428a5832808d9d6",
     "testem": "~0.2.98"
+  },
+  "publishConfig": {
+    "optionalDependencies": {}
   }
 }
