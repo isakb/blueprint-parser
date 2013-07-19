@@ -15,7 +15,7 @@ escapeBody = (body) ->
       if /^EOT$/m.test(body)
         i = 1
         while /^EOT#{i}$/m.test(body)
-          i++
+          i += 1
         "<<<EOT#{i}\n#{body}\nEOT#{i}"
       else
         "<<<EOT\n#{body}\nEOT"
@@ -62,8 +62,8 @@ class Transaction
   constructor: (props = {}) ->
     fillProps this, props,
       description: null
-      request:     new Request
-      response:    new Response
+      request:     new Request()
+      response:    new Response()
 
   toJSON: ->
     description: @description
