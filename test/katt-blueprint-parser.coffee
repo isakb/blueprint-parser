@@ -1,14 +1,18 @@
+{
+  chai
+  assert
+} = require './_utils'
+Assertion    = chai.Assertion
 fs           = require "fs"
 path         = require "path"
-chai         = require "chai"
 apiaryParser = require "apiary-blueprint-parser"
-parser       = require "../lib/katt-blueprint-parser"
+parser       = require "../"
 
 EXAMPLE_FILE = path.resolve(path.join(__dirname, "..", "examples", "example.apib"))
 
 chai.use (chai, util) ->
   chai.assert.parse = (input, result) ->
-    assertion = new chai.Assertion(input)
+    assertion = new Assertion(input)
 
     assertion.assert(
       util.eql(parser.parse(input), result)
@@ -19,7 +23,7 @@ chai.use (chai, util) ->
     )
 
   chai.assert.notParse = (input) ->
-    assertion = new chai.Assertion(input)
+    assertion = new Assertion(input)
 
     try
       parser.parse(input)
@@ -34,8 +38,6 @@ chai.use (chai, util) ->
       null
       input
     )
-
-assert = chai.assert
 
 Blueprint            = parser.ast.Blueprint
 Transaction          = parser.ast.Transaction
@@ -1121,7 +1123,9 @@ describe "KATT API blueprint parser", ->
     exampleBlueprint = fs.readFileSync(EXAMPLE_FILE).toString()
     assert.parse exampleBlueprint, new Blueprint
       name:        "Sample API v2"
-      description: "Welcome to the our sample API documentation. All comments can be written in (support [Markdown](http://daringfireball.net/projects/markdown/syntax) syntax)"
+      description: "Welcome to the our sample API documentation. " +
+                   "All comments can be written in (support " +
+                   "[Markdown](http://daringfireball.net/projects/markdown/syntax) syntax)"
       transactions:  [
         new Transaction
           description: "List products added into your shopping-cart. (comment block again in Markdown)"
@@ -1155,8 +1159,8 @@ describe "KATT API blueprint parser", ->
             url:         "/payment"
             body: "{ \"cc\": \"12345678900\", \"cvc\": \"123\", \"expiry\": \"0112\" }"
           response: new Response
-              status: 200
-              body:   "{ \"receipt\": \"/payment/receipt/1\" }"
+            status: 200
+            body:   "{ \"receipt\": \"/payment/receipt/1\" }"
 
         new Transaction
           description: "Test variable"
@@ -1165,8 +1169,8 @@ describe "KATT API blueprint parser", ->
             url:         "{{<whatever}}"
             body: "{ \"cc\": \"12345678900\", \"cvc\": \"123\", \"expiry\": \"0112\" }"
           response: new Response
-              status: 200
-              body:   "{ \"receipt\": \"/payment/receipt/2\" }"
+            status: 200
+            body:   "{ \"receipt\": \"/payment/receipt/2\" }"
       ]
 
   it "returns a parsed blueprint #toBlueprint() as the original blueprint", ->
